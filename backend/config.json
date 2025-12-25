@@ -1,0 +1,46 @@
+{
+    "temp_unit": "F",
+    "temp_thresholds": {
+        "global": {
+            "warning": 80.0,
+            "critical": 90.0
+        },
+        "sensors": {
+            "mock-1": {
+                "warning": 80.0,
+                "critical": 90.0
+            },
+            "mock-2": {
+                "warning": 80.0,
+                "critical": 90.0
+            },
+            "mock-3": {
+                "warning": 80.0,
+                "critical": 90.0
+            },
+            "mock-4": {
+                "warning": 80.0,
+                "critical": 90.0
+            },
+            "mock-5": {
+                "warning": 80.0,
+                "critical": 90.0
+            }
+        }
+    },
+    "sensor_names": {
+        "mock-1": "Bay A",
+        "mock-2": "Bay B",
+        "mock-3": "Bay C",
+        "mock-4": "Ambient",
+        "mock-5": "Exhaust"
+    },
+    "ntp_server": "pool.ntp.org",
+    "location": {
+        "auto": true,
+        "latitude": 44.0597,
+        "longitude": -121.3157,
+        "name": "Bend"
+    },
+    "mock_mode": true
+}
