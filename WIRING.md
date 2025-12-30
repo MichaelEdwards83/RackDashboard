@@ -19,16 +19,29 @@ This guide details how to wire the sensors and LEDs to your Raspberry Pi 5 (or P
 
 ## 1. Temperature Sensors (DS18B20)
 
-You can wire multiple sensors in **parallel** (all Data wires to the same pin, all Power to same pin, etc).
+You have a **Split Configuration** with two groups of sensors to simplify wiring runs.
 
-**Wiring:**
-1.  **Red (VCC)**: Connect to **3.3V (Pin 1)**.
-2.  **Black (GND)**: Connect to **Ground (Pin 6)**.
-3.  **Yellow/White (Data)**: Connect to **GPIO 4 (Pin 7)**.
+### Group A: Probes 1, 2, 3
+- **Data Pin**: Connect to **GPIO 4 (Pin 7)**.
+- **Resistor**: Connect a 4.7kΩ resistor between Data (GPIO 4) and 3.3V power.
 
-**Detailed Requirements:**
-- **Pull-Up Resistor**: You **MUST** place a **4.7kΩ resistor** between the **Data** wire and the **3.3V** power.
-    - *Without this, the Pi cannot read the data signal.*
+### Group B: Probes 4, 5
+- **Data Pin**: Connect to **GPIO 17 (Pin 11)**.
+- **Resistor**: Connect a 4.7kΩ resistor between Data (GPIO 17) and 3.3V power.
+
+### Common Power
+- **Red (VCC)**: All sensors connect to **3.3V (Pin 1)**.
+- **Black (GND)**: All sensors connect to **Ground (Pin 6 or 9)**.
+
+### Required Software Config
+You must enable both pins in `/boot/firmware/config.txt`:
+
+```ini
+# At the bottom of the file:
+dtoverlay=w1-gpio,gpiopin=4
+dtoverlay=w1-gpio,gpiopin=17
+```
+*(Reboot required after editing)*
 
 ## 2. LED Strip (WS2812B)
 
