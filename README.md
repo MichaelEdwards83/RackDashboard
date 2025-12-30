@@ -98,3 +98,14 @@ Access at `http://localhost:5173`.
 
 - **One-Wire Sensors**: Ensure `dtoverlay=w1-gpio` is added to your `/boot/firmware/config.txt`.
 - **Display**: Ensure your `config.txt` forces the HDMI mode to 1920x480 if it's not detected automatically.
+
+## FAQ
+
+**Q: Will my probes always stay in the same order?**
+A: **Yes and No.** The *physical* order might shift if you plug them in differently, but the **Names** you give them are tied to their unique serial numbers (IDs). So "Top Rack" will always be "Top Rack" even if it moves from Spot 1 to Spot 5.
+
+**Q: Weather stays "Offline"?**
+A: Ensure your Pi has Wi-Fi. If "Auto Location" fails, disable it in "Settings" and enter your Latitude/Longitude manually (e.g. from Google Maps).
+
+## License
+MIT
