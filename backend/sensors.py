@@ -1,6 +1,7 @@
 import random
 import time
 import os
+import glob
 from typing import List, Dict, Any
 from config import CONFIG
 
@@ -42,7 +43,26 @@ class SensorManager:
             # Discover available sensors
             # In a real deployment, we might want to map specific IDs to specific slots
             # For now, we just take the first 5 found
-            found_sensors = W1ThermSensor.get_available_sensors()
+            found_sensors = []
+            try:
+                found_sensors = W1ThermSensor.get_available_sensors()
+            except Exception as e:
+                print(f"Library scan failed: {e}. Trying manual fallback.")
+            
+            # Manual Fallback if library found nothing but we are not in mock mode
+            if not found_sensors:
+                # Look for 28-* directories in /sys/bus/w1/devices/
+                manual_paths = glob.glob("/sys/bus/w1/devices/28-*")
+                if manual_paths:
+                    print(f"Manual scan found {len(manual_paths)} sensors: {manual_paths}")
+                    for path in manual_paths:
+                        try:
+                            sensor_id = os.path.basename(path)
+                            # Manually instantiate
+                            found_sensors.append(W1ThermSensor(W1SensorType.DS18B20, sensor_id))
+                        except Exception as e2:
+                            print(f"Failed to load manual sensor {path}: {e2}")
+
             self.sensors = found_sensors[:5]
             if len(self.sensors) < 5:
                 print(f"Warning: Only found {len(self.sensors)} sensors. Filling rest with placeholders/mock.")
@@ -57,7 +77,23 @@ class SensorManager:
         current_time = time.time()
         if not self.mock_mode and (current_time - self._last_readings_time > 5):
              try:
-                 available = W1ThermSensor.get_available_sensors()
+             try:
+                 available = []
+                 try:
+                     available = W1ThermSensor.get_available_sensors()
+                 except Exception:
+                     pass
+                 
+                 if not available:
+                     # Manual fallback
+                     manual_paths = glob.glob("/sys/bus/w1/devices/28-*")
+                     for path in manual_paths:
+                        try:
+                            sensor_id = os.path.basename(path)
+                            available.append(W1ThermSensor(W1SensorType.DS18B20, sensor_id))
+                        except: pass
+
+                 # Debug logging
                  # Debug logging
                  if len(available) != len(self.sensors):
                      print(f"[DEBUG SCAN] Scan found {len(available)} sensors: {[s.id for s in available]}")
