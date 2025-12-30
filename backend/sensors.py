@@ -205,7 +205,7 @@ class SensorManager:
             order_changed = False
             
             for i, item in enumerate(final_slots):
-                if isinstance(item, W1SensorType): # It's a real sensor object
+                if isinstance(item, (W1SensorType, NativeW1Sensor)): # It's a real sensor object
                     # Read Temp
                     try:
                         temp = item.get_temperature()
