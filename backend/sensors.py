@@ -90,8 +90,12 @@ class SensorManager:
                     for path in manual_paths:
                         try:
                             sensor_id = os.path.basename(path)
-                            # Manually instantiate
-                            found_sensors.append(W1ThermSensor(W1SensorType.DS18B20, sensor_id))
+                            # Instantiate Native or Library based on availability
+                            if HAS_W1:
+                                found_sensors.append(W1ThermSensor(W1SensorType.DS18B20, sensor_id))
+                            else:
+                                found_sensors.append(NativeW1Sensor(sensor_id))
+                                
                         except Exception as e2:
                             print(f"Failed to load manual sensor {path}: {e2}")
 
@@ -101,6 +105,12 @@ class SensorManager:
         except Exception as e:
             print(f"Error initializing 1-wire sensors: {e}. Switching to Mock Mode.")
             self.mock_mode = True
+
+    def _log_error(self, msg):
+        try:
+            with open("backend_debug.log", "a") as f:
+                f.write(f"{time.ctime()}: {msg}\n")
+        except: pass
 
     def get_temperatures(self) -> List[Dict[str, Any]]:
         readings = []
@@ -221,6 +231,7 @@ class SensorManager:
                         new_order.append(item.id)
                         
                     except Exception as e:
+                        self._log_error(f"Sensor Read Error ({item.id}): {e}")
                         readings.append({
                             "id": item.id,
                             "name": CONFIG.get("sensor_names", {}).get(item.id, f"Probe {i+1}"),

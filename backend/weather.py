@@ -3,6 +3,12 @@ import time
 from config import CONFIG
 from typing import Dict, Any
 
+def log_debug(msg):
+    try:
+        with open("backend_debug.log", "a") as f:
+            f.write(f"[WEATHER] {time.ctime()}: {msg}\n")
+    except: pass
+
 class WeatherManager:
     def __init__(self):
         self.current_weather = None
@@ -30,55 +36,40 @@ class WeatherManager:
              # Let's simple check: if we have 0.0,0.0 OR it's been a long time (e.g. on boot)
              self._update_location_auto()
              # Refresh from config (in case it updated)
-             loc = CONFIG.get("location")
-             lat = loc["latitude"]
-             lon = loc["longitude"]
-
         # Fetch Weather
         try:
-            unit_param = ""
-            if CONFIG.get("temp_unit") == "F":
-                unit_param = "&temperature_unit=fahrenheit"
+            # 1. Update Location if needed
+            if not self.lat or not self.lon:
+                self._update_location_auto()
             
-            url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current=temperature_2m,weather_code&timezone=auto{unit_param}"
-            resp = requests.get(url, timeout=10)
-            if resp.status_code == 200:
-                data = resp.json()
-                current = data.get("current", {})
-                
-                self.current_weather = {
-                    "temp": current.get("temperature_2m"),
-                    "code": current.get("weather_code"),
-                    "unit": data.get("current_units", {}).get("temperature_2m", "°C"),
-                    "timezone": data.get("timezone"),
-                    "location_name": loc.get("name", "Unknown")
-                }
-                self.last_update = time.time()
-                return self.current_weather
+            # 2. Fetch Weather
+            url = f"https://api.open-meteo.com/v1/forecast?latitude={self.lat}&longitude={self.lon}&current=temperature_2m,weather_code&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch"
+            
+            try:
+                r = requests.get(url, timeout=10)
+                data = r.json()
+                pass # success
+            except Exception as e:
+                log_debug(f"API Request Failed: {e}")
+                raise e
+
+            current = data.get("current", {})
+            self._cached_weather = {
+                "temp": current.get("temperature_2m", "--"),
+                "code": current.get("weather_code", 0),
+                "unit": "F",
+                "location_name": self.location_name
+            }
+            self._last_weather_time = time.time()
+            return self._cached_weather
+
         except Exception as e:
-            print(f"Error fetching weather: {e}")
-            self.last_update = time.time() # Mark attempted so we trigger backoff
-        
-        # Return Error State if no valid cache
-        if not self.current_weather:
+            print(f"Weather Error: {e}")
+            log_debug(f"Weather Error (General): {e}")
+            self._error_count += 1
+            self._backoff_until = time.time() + 60 # Backoff 60s
             return {"temp": "--", "code": 0, "unit": "F", "location_name": "Offline"}
-            
-        return self.current_weather
 
     def _update_location_auto(self):
         try:
-            # use ip-api.com for free location by IP
-            resp = requests.get("http://ip-api.com/json/", timeout=5)
-            if resp.status_code == 200:
-                data = resp.json()
-                if data["status"] == "success":
-                    new_loc = {
-                        "auto": True,
-                        "latitude": data["lat"],
-                        "longitude": data["lon"],
-                        "name": data["city"]
-                    }
-                    CONFIG.set("location", new_loc)
-                    print(f"Auto-detected location: {data['city']}")
-        except Exception as e:
             print(f"Error auto-detecting location: {e}")
