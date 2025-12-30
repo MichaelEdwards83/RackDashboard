@@ -12,6 +12,7 @@ try:
 except Exception:
     # Catches ImportError AND w1thermsensor.errors.KernelModuleLoadError
     HAS_W1 = False
+    W1SensorType = type(None) # Dummy for isinstance checks
 
 # Native fallback class
 class NativeW1Sensor:
