@@ -2,5 +2,5 @@ fastapi
 uvicorn
 pydantic
 requests
-# w1thermsensor # Optional, might fail on Mac, can try
+w1thermsensor
 # rpi_ws281x    # Optional, will definitely fail on Mac (usually)

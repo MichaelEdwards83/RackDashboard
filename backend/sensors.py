@@ -13,6 +13,35 @@ except Exception:
     # Catches ImportError AND w1thermsensor.errors.KernelModuleLoadError
     HAS_W1 = False
 
+# Native fallback class
+class NativeW1Sensor:
+    def __init__(self, sensor_id):
+        self.id = sensor_id
+        # Standard path
+        self.path = f"/sys/bus/w1/devices/{sensor_id}/w1_slave"
+
+    def get_temperature(self):
+        try:
+            with open(self.path, "r") as f:
+                lines = f.readlines()
+            
+            if not lines:
+                raise Exception("Empty file")
+                
+            # Line 1 check YES
+            if "YES" not in lines[0]:
+                raise Exception("CRC check failed")
+                
+            # Line 2 get t=
+            pos = lines[1].find("t=")
+            if pos != -1:
+                temp_string = lines[1][pos+2:]
+                return float(temp_string) / 1000.0
+            else:
+                raise Exception("Temp not found")
+        except Exception as e:
+            raise Exception(f"Native Read Error: {e}")
+
 class SensorManager:
     def __init__(self):
         self.mock_mode = CONFIG.get("mock_mode")
@@ -21,9 +50,11 @@ class SensorManager:
         self._last_readings_time = 0
         
         # Check if we are physically capable of 1-wire
-        # (Very basic check, better to rely on config or import)
-        if not HAS_W1 and not self.mock_mode:
-            print("w1thermsensor not found, forcing Mock Mode")
+        # If library is missing, we check for OS support via glob
+        sys_w1 = glob.glob("/sys/bus/w1/devices/28-*")
+        
+        if not HAS_W1 and not sys_w1 and not self.mock_mode:
+            print("w1thermsensor not found AND no OS devices found. Forcing Mock Mode")
             self.mock_mode = True
 
         if not self.mock_mode:
