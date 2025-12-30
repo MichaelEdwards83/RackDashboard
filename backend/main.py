@@ -110,57 +110,67 @@ def get_settings():
 
 @app.post("/api/settings")
 def update_settings(settings: SettingsUpdate):
-    current = CONFIG.get_all()
-    print(f"DEBUG SETTINGS UPDATE: {settings}")
-    
-    # Check structure update (migration fix if config.json was old)
-    if "global" not in current["temp_thresholds"]:
-         current["temp_thresholds"] = {
-             "global": current["temp_thresholds"],
-             "sensors": {}
-         }
+    try:
+        current = CONFIG.get_all()
+        # Log payload
+        try:
+            with open("backend_debug.log", "a") as f:
+                f.write(f"SETTINGS REQUEST: {settings}\n")
+        except: pass
 
-    # Update Thresholds
-    target_scope = "global"
-    if settings.sensor_id and settings.sensor_id != "global":
-        target_scope = "sensors"
-        
-    if target_scope == "global":
-        if settings.threshold_warning is not None:
-            current["temp_thresholds"]["global"]["warning"] = settings.threshold_warning
-        if settings.threshold_critical is not None:
-             current["temp_thresholds"]["global"]["critical"] = settings.threshold_critical
-    else:
-        # Per-sensor
-        sid = settings.sensor_id
-        if sid not in current["temp_thresholds"]["sensors"]:
-            # Copy global as baseline if creating new
-             current["temp_thresholds"]["sensors"][sid] = \
-                 current["temp_thresholds"]["global"].copy()
-        
-        if settings.threshold_warning is not None:
-            current["temp_thresholds"]["sensors"][sid]["warning"] = settings.threshold_warning
-        if settings.threshold_critical is not None:
-             current["temp_thresholds"]["sensors"][sid]["critical"] = settings.threshold_critical
-        
-        # Update Name
-        if settings.sensor_name is not None:
-             if "sensor_names" not in current:
-                 current["sensor_names"] = {}
-             current["sensor_names"][sid] = settings.sensor_name
+        # Check structure update (migration fix if config.json was old)
+        if "global" not in current["temp_thresholds"]:
+             current["temp_thresholds"] = {
+                 "global": current["temp_thresholds"],
+                 "sensors": {}
+             }
 
-    # Update Location
-    if settings.location_auto is not None:
-        current["location"]["auto"] = settings.location_auto
+        # Update Thresholds
+        target_scope = "global"
+        if settings.sensor_id and settings.sensor_id != "global":
+            target_scope = "sensors"
+            
+        if target_scope == "global":
+            if settings.threshold_warning is not None:
+                current["temp_thresholds"]["global"]["warning"] = settings.threshold_warning
+            if settings.threshold_critical is not None:
+                 current["temp_thresholds"]["global"]["critical"] = settings.threshold_critical
+        else:
+            # Per-sensor
+            sid = settings.sensor_id
+            if sid not in current["temp_thresholds"]["sensors"]:
+                # Copy global as baseline if creating new
+                 current["temp_thresholds"]["sensors"][sid] = \
+                     current["temp_thresholds"]["global"].copy()
+            
+            if settings.threshold_warning is not None:
+                current["temp_thresholds"]["sensors"][sid]["warning"] = settings.threshold_warning
+            if settings.threshold_critical is not None:
+                 current["temp_thresholds"]["sensors"][sid]["critical"] = settings.threshold_critical
+            
+            # Update Name
+            if settings.sensor_name is not None:
+                 if "sensor_names" not in current:
+                     current["sensor_names"] = {}
+                 current["sensor_names"][sid] = settings.sensor_name
+
+        # Update Location
+        if settings.location_auto is not None:
+            current["location"]["auto"] = settings.location_auto
+            
+        # Update Mock Mode
+        if settings.mock_mode is not None:
+            current["mock_mode"] = settings.mock_mode
+            
+        CONFIG.save()
+        return {"status": "ok", "config": current}
         
-    # Update Mock Mode
-    if settings.mock_mode is not None:
-        current["mock_mode"] = settings.mock_mode
-        # If disabling mock mode, trigger re-init of sensors/leds if needed
-        # (Though simpler to just let valid reads happen on next loop, or require restart)
-        # For now, we update config. App restart is cleanest to re-load drivers if they failed previously.
-        
-    CONFIG.update_all(current)
+    except Exception as e:
+        try:
+            with open("backend_debug.log", "a") as f:
+                f.write(f"SETTINGS ENDPOINT ERROR: {e}\n")
+        except: pass
+        raise HTTPException(status_code=500, detail=str(e))
     
     # Reload Managers
     sensors_mgr.reload_config()

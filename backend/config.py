@@ -52,6 +52,10 @@ class ConfigManager:
                 json.dump(self._config, f, indent=4)
         except Exception as e:
             print(f"Error saving config: {e}")
+            try:
+                with open("backend_debug.log", "a") as logf:
+                    logf.write(f"CONFIG SAVE ERROR: {e}\n")
+            except: pass
 
     def get(self, key: str, default: Any = None) -> Any:
         return self._config.get(key, default)
