@@ -27,6 +27,15 @@ class SensorManager:
         if not self.mock_mode:
             self._init_real_sensors()
 
+    def reload_config(self):
+        new_mock = CONFIG.get("mock_mode")
+        if self.mock_mode and not new_mock:
+            # Switching from Mock -> Real
+            print("Switching to Real Sensors...")
+            self._init_real_sensors()
+        
+        self.mock_mode = new_mock
+
     def _init_real_sensors(self):
         try:
             # Discover available sensors

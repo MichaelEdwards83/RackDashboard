@@ -39,6 +39,15 @@ class LEDManager:
         self.update_thread = threading.Thread(target=self._animate_loop, daemon=True)
         self.update_thread.start()
 
+    def reload_config(self):
+        new_mock = CONFIG.get("mock_mode")
+        if self.mock_mode and not new_mock:
+             # Switching from Mock -> Real
+            print("Switching to Real LEDs...")
+            self._init_real_leds()
+        
+        self.mock_mode = new_mock
+
     def _init_real_leds(self):
         try:
             self.strip = PixelStrip(self.led_count, self.led_pin, self.led_freq_hz, 

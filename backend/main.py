@@ -160,6 +160,10 @@ def update_settings(settings: SettingsUpdate):
         
     CONFIG.update_all(current)
     
+    # Reload Managers
+    sensors_mgr.reload_config()
+    leds_mgr.reload_config()
+    
     # Update NTP
     msg = "Settings updated"
     if settings.ntp_server:
