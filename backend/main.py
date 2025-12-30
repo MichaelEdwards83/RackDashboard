@@ -111,6 +111,7 @@ def get_settings():
 @app.post("/api/settings")
 def update_settings(settings: SettingsUpdate):
     current = CONFIG.get_all()
+    print(f"DEBUG SETTINGS UPDATE: {settings}")
     
     # Check structure update (migration fix if config.json was old)
     if "global" not in current["temp_thresholds"]:
