@@ -34,6 +34,21 @@ try:
     for r in readings:
         print(f"      -> {r}")
 
+    print("\n[4] RAW SENSOR FILE INSPECTION")
+    if mgr.sensors:
+        s = mgr.sensors[0]
+        id_ = getattr(s, "id", "unknown")
+        path = f"/sys/bus/w1/devices/{id_}/w1_slave"
+        print(f"    Inspecting: {path}")
+        try:
+            with open(path, "r") as f:
+                content = f.read()
+            print("    [START FILE CONTENT]")
+            print(content)
+            print("    [END FILE CONTENT]")
+        except Exception as e:
+             print(f"    Error reading raw file: {e}")
+
 except ImportError as e:
     print(f"    IMPORT ERROR: {e}")
 except Exception as e:
