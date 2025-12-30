@@ -21,7 +21,8 @@ DEFAULT_CONFIG = {
         "longitude": 0.0,
         "name": "Unknown"
     },
-    "mock_mode": False
+    "mock_mode": False,
+    "sensor_order": []
 }
 
 class ConfigManager:
