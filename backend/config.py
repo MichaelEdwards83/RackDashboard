@@ -21,7 +21,7 @@ DEFAULT_CONFIG = {
         "longitude": 0.0,
         "name": "Unknown"
     },
-    "mock_mode": True
+    "mock_mode": False
 }
 
 class ConfigManager:
