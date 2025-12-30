@@ -14,6 +14,15 @@ class WeatherManager:
         self.current_weather = None
         self.last_update = 0
         self.update_interval = 1800 # 30 minutes
+        
+        # Initialize location attributes to prevent runtime errors
+        self.lat = None
+        self.lon = None
+        self.location_name = "Unknown"
+        self._error_count = 0
+        self._backoff_until = 0
+        self._cached_weather = None
+        self._last_weather_time = 0
 
     def get_weather(self) -> Dict[str, Any]:
         # Return cached if valid
