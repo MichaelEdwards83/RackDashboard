@@ -37,7 +37,12 @@ class NativeW1Sensor:
             pos = lines[1].find("t=")
             if pos != -1:
                 temp_string = lines[1][pos+2:]
-                return float(temp_string) / 1000.0
+                val = float(temp_string) / 1000.0
+                # Log occasional success to prove we are reading
+                # (Comment out if too spammy, but vital for debug now)
+                # with open("backend_debug.log", "a") as logf:
+                #     logf.write(f"NATIVE READ {self.id}: {val}\n")
+                return val
             else:
                 raise Exception("Temp not found")
         except Exception as e:
@@ -118,10 +123,11 @@ class SensorManager:
         if not self.mock_mode and (current_time - self._last_readings_time > 5):
              try:
                  available = []
-                 try:
-                     available = W1ThermSensor.get_available_sensors()
-                 except Exception:
-                     pass
+                 # FORCE MANUAL FALLBACK: The library detects sensors but reads poorly on this dual-bus setup.
+                 # try:
+                 #     available = W1ThermSensor.get_available_sensors()
+                 # except Exception:
+                 #     pass
                  
                  if not available:
                      # Manual fallback
