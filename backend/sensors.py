@@ -121,7 +121,10 @@ class SensorManager:
                      for path in manual_paths:
                         try:
                             sensor_id = os.path.basename(path)
-                            available.append(W1ThermSensor(W1SensorType.DS18B20, sensor_id))
+                            if HAS_W1:
+                                available.append(W1ThermSensor(W1SensorType.DS18B20, sensor_id))
+                            else:
+                                available.append(NativeW1Sensor(sensor_id))
                         except: pass
 
                  # Debug logging
