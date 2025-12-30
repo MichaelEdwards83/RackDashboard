@@ -1,58 +1,44 @@
 import glob
 import os
 import sys
+import time
 
-print("--- 1-Wire Sensor Diagnostic Tool ---")
+# Add current directory to path so we can import app modules
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+print("--- 1-Wire Sensor Diagnostic Tool (Integration Mode) ---")
 
 # 1. Check OS Level
 print("\n[1] Checking /sys/bus/w1/devices/...")
 sys_paths = glob.glob("/sys/bus/w1/devices/28-*")
 if not sys_paths:
-    print("    FAIL: No devices found in filesystem (ls /sys/bus/w1/devices/).")
-    print("    Check wiring and config.txt (dtoverlay=w1-gpio).")
+    print("    FAIL: No devices found in filesystem.")
 else:
-    print(f"    SUCCESS: Found {len(sys_paths)} devices in OS:")
-    for p in sys_paths:
-        print(f"      -> {p}")
+    print(f"    SUCCESS: Found in OS: {[os.path.basename(p) for p in sys_paths]}")
 
-# 2. Check Library
-print("\n[2] Checking w1thermsensor Library...")
+# 2. Test SensorManager (The Real Code)
+print("\n[2] Testing SensorManager Initialization...")
 try:
-    from w1thermsensor import W1ThermSensor, Sensor
-    print("    Library imported successfully.")
+    from sensors import SensorManager, NativeW1Sensor
+    print("    Import Successful.")
     
-    available = W1ThermSensor.get_available_sensors()
-    print(f"    Library.get_available_sensors() found: {len(available)}")
+    mgr = SensorManager()
+    print(f"    Manager Initialized. Mock Mode: {mgr.mock_mode}")
+    print(f"    Sensors Detected: {len(mgr.sensors)}")
+    for s in mgr.sensors:
+        print(f"      -> Sensor Obj: {s} (ID: {getattr(s, 'id', 'Unknown')})")
     
-    for s in available:
-        try:
-            t = s.get_temperature()
-            print(f"      -> ID: {s.id} | Temp: {t}°C")
-        except Exception as e:
-             print(f"      -> ID: {s.id} | Error reading: {e}")
+    print("\n[3] Testing Temperature Read (get_temperatures)...")
+    readings = mgr.get_temperatures()
+    print(f"    Readings Returned: {len(readings)}")
+    for r in readings:
+        print(f"      -> {r}")
 
-except ImportError:
-    print("    ERROR: w1thermsensor module not installed.")
+except ImportError as e:
+    print(f"    IMPORT ERROR: {e}")
 except Exception as e:
-    print(f"    CRITICAL LIBRARY ERROR: {e}")
-
-# 3. Manual Fallback Test
-print("\n[3] Testing Manual Fallback Logic...")
-manual_sensors = []
-if sys_paths:
-    for path in sys_paths:
-        try:
-            sid = os.path.basename(path)
-            # Try to force instantiate
-            # Note: W1ThermSensor constructor might differ by version, trying standard
-            # W1ThermSensor(sensor_type, sensor_id)
-            s = W1ThermSensor(Sensor.DS18B20, sid)
-            reading = s.get_temperature()
-            print(f"    Manual Init {sid}: Success ({reading}°C)")
-            manual_sensors.append(s)
-        except Exception as e:
-            print(f"    Manual Init {sid}: Failed ({e})")
-else:
-    print("    Skipping (No OS devices)")
+    print(f"    CRITICAL RUNTIME ERROR: {e}")
+    import traceback
+    traceback.print_exc()
 
 print("\n--- Diagnostic Complete ---")
