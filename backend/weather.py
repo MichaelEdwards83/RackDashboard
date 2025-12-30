@@ -14,17 +14,25 @@ class WeatherManager:
         if time.time() - self.last_update < self.update_interval and self.current_weather:
             return self.current_weather
         
+        # Rate Limit / Retry Backoff
+        # If we failed recently, don't retry immediately to avoid banning
+        if time.time() - self.last_update < 60 and not self.current_weather:
+             return {"temp": "--", "code": 0, "unit": "F", "location_name": "Offline"}
+
         # Determine location
         loc = CONFIG.get("location")
         lat = loc["latitude"]
         lon = loc["longitude"]
 
-        if loc["auto"] or (lat == 0.0 and lon == 0.0):
-            self._update_location_auto()
-            # Refresh local vars
-            loc = CONFIG.get("location")
-            lat = loc["latitude"]
-            lon = loc["longitude"]
+        if loc["auto"]:
+             # Only try auto-loc if we haven't successfully done it recently/ever
+             # But here we try every time if 'auto' is set? That's bad.
+             # Let's simple check: if we have 0.0,0.0 OR it's been a long time (e.g. on boot)
+             self._update_location_auto()
+             # Refresh from config (in case it updated)
+             loc = CONFIG.get("location")
+             lat = loc["latitude"]
+             lon = loc["longitude"]
 
         # Fetch Weather
         try:
@@ -49,8 +57,13 @@ class WeatherManager:
                 return self.current_weather
         except Exception as e:
             print(f"Error fetching weather: {e}")
+            self.last_update = time.time() # Mark attempted so we trigger backoff
         
-        return None
+        # Return Error State if no valid cache
+        if not self.current_weather:
+            return {"temp": "--", "code": 0, "unit": "F", "location_name": "Offline"}
+            
+        return self.current_weather
 
     def _update_location_auto(self):
         try:
