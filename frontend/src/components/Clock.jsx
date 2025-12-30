@@ -22,7 +22,7 @@ function Clock({ time, date, weather }) {
             <div className="absolute top-[-50px] right-[-50px] w-40 h-40 bg-blue-500/20 rounded-full blur-3xl"></div>
 
             <div>
-                <div className="text-7xl font-black tracking-tighter leading-none bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+                <div className="text-[7rem] font-black tracking-tighter leading-none bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
                     {time || "--:--"}
                 </div>
             </div>
