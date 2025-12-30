@@ -11,6 +11,7 @@ function SettingsModal({ onClose }) {
     // Local state for form
     const [ntp, setNtp] = useState("")
     const [autoLoc, setAutoLoc] = useState(true)
+    const [mock, setMock] = useState(false)
 
     // Per-sensor config state
     const [selectedScope, setSelectedScope] = useState("global") // "global" or sensor_id
@@ -33,6 +34,7 @@ function SettingsModal({ onClose }) {
             setConfig(c)
             setNtp(c.ntp_server)
             setAutoLoc(c.location.auto)
+            setMock(c.mock_mode)
 
             // Init with global values
             const globalThr = c.temp_thresholds?.global || { warning: 26, critical: 30 }
@@ -79,7 +81,8 @@ function SettingsModal({ onClose }) {
                 threshold_warning: parseFloat(warn),
                 threshold_critical: parseFloat(crit),
                 sensor_id: selectedScope,
-                sensor_name: selectedScope !== "global" ? sensorName : undefined
+                sensor_name: selectedScope !== "global" ? sensorName : undefined,
+                mock_mode: mock
             })
             // Update local config state to reflect changes without full reload
             const newConfig = { ...config }
@@ -199,6 +202,19 @@ function SettingsModal({ onClose }) {
                                     className={`w-12 h-6 rounded-full transition-colors relative ${autoLoc ? 'bg-blue-600' : 'bg-gray-600'}`}
                                 >
                                     <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${autoLoc ? 'left-7' : 'left-1'}`}></div>
+                                </button>
+                            </div>
+                            <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg mt-2">
+                                <div>
+                                    <div className="font-medium">Mock Mode</div>
+                                    <div className="text-xs text-gray-400">Simulate sensor data</div>
+                                </div>
+                                <button
+                                    onClick={() => setMock(!mock)}
+                                    disabled={!mock && config?.hw_failed}
+                                    className={`w-12 h-6 rounded-full transition-colors relative ${mock ? 'bg-purple-600' : 'bg-gray-600'} ${(!mock && config?.hw_failed) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                >
+                                    <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${mock ? 'left-7' : 'left-1'}`}></div>
                                 </button>
                             </div>
                         </div>

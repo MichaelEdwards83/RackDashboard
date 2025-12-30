@@ -34,6 +34,7 @@ class SettingsUpdate(BaseModel):
     threshold_critical: float = None
     sensor_id: str = None # If provided, thresholds apply to this sensor. If "global" or None, applies globally.
     sensor_name: str = None # Optional name update for sensor_id
+    mock_mode: bool = None
 
 # ... (startup event and background tasks unchanged) ...
 
@@ -149,6 +150,13 @@ def update_settings(settings: SettingsUpdate):
     # Update Location
     if settings.location_auto is not None:
         current["location"]["auto"] = settings.location_auto
+        
+    # Update Mock Mode
+    if settings.mock_mode is not None:
+        current["mock_mode"] = settings.mock_mode
+        # If disabling mock mode, trigger re-init of sensors/leds if needed
+        # (Though simpler to just let valid reads happen on next loop, or require restart)
+        # For now, we update config. App restart is cleanest to re-load drivers if they failed previously.
         
     CONFIG.update_all(current)
     
