@@ -8,8 +8,9 @@ cd "$APP_DIR"
 
 echo "Starting Backend..."
 cd backend
+# Activate venv!
+source venv/bin/activate
 # Start FastAPI (using uvicorn)
-# In production, you might want to run this as a systemd service
 python3 -m uvicorn main:app --host 0.0.0.0 --port 8000 &
 BACKEND_PID=$!
 
@@ -20,12 +21,29 @@ cd ../frontend
 npm run dev -- --host &
 FRONTEND_PID=$!
 
-# Wait for services to start
-sleep 5
+# Wait for Frontend to be ready (up to 30 seconds)
+echo "Waiting for Frontend to launch..."
+for i in {1..30}; do
+    if curl -s http://localhost:5173 >/dev/null; then
+        echo "Frontend is up!"
+        break
+    fi
+    sleep 1
+done
 
 # Launch Chromium in Kiosk Mode pointing to the local frontend
 # Note: Adjust port if needed
-chromium-browser --kiosk --noerrdialogs --disable-infobars --check-for-update-interval=31536000 "http://localhost:5173" &
+# try finding chromium executable (pi usually uses 'chromium-browser' or 'chromium')
+if command -v chromium-browser &> /dev/null; then
+    BROWSER="chromium-browser"
+elif command -v chromium &> /dev/null; then
+    BROWSER="chromium"
+else
+    echo "Chromium not found. Please install it."
+    exit 1
+fi
+
+$BROWSER --kiosk --noerrdialogs --disable-infobars --check-for-update-interval=31536000 "http://localhost:5173" &
 
 # Trap cleanup
 trap "kill $BACKEND_PID $FRONTEND_PID; exit" SIGINT SIGTERM

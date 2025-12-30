@@ -4,7 +4,13 @@
 
 echo "Installing System Dependencies..."
 sudo apt update
-sudo apt install -y python3-pip python3-venv nodejs npm chromium-browser git
+sudo apt install -y python3-pip python3-venv nodejs npm git
+
+# Try installing chromium (package name varies)
+if ! sudo apt install -y chromium-browser; then
+    echo "chromium-browser not found, trying 'chromium'..."
+    sudo apt install -y chromium
+fi
 
 echo "Setting up Backend..."
 cd ../backend
