@@ -31,7 +31,12 @@ class WeatherManager:
         
         # Rate Limit / Retry Backoff
         # If we failed recently, don't retry immediately to avoid banning
-        if time.time() - self.last_update < 60 and not self.current_weather:
+        # BUT: If we have NO data yet (startup), retry aggressively (every 5s)
+        backoff_time = 60
+        if not self.current_weather:
+            backoff_time = 5
+            
+        if self._backoff_until > time.time():
              return {"temp": "--", "code": 0, "unit": "F", "location_name": "Offline"}
 
         # Determine location
@@ -76,7 +81,11 @@ class WeatherManager:
             print(f"Weather Error: {e}")
             log_debug(f"Weather Error (General): {e}")
             self._error_count += 1
-            self._backoff_until = time.time() + 60 # Backoff 60s
+            
+            # Short backoff if we have nothing to show
+            delay = 5 if not self.current_weather else 60
+            self._backoff_until = time.time() + delay
+            
             return {"temp": "--", "code": 0, "unit": "F", "location_name": "Offline"}
 
     def _update_location_auto(self):
