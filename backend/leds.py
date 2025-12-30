@@ -43,8 +43,9 @@ class LEDManager:
         new_mock = CONFIG.get("mock_mode")
         if self.mock_mode and not new_mock:
              # Switching from Mock -> Real
-            print("Switching to Real LEDs...")
-            self._init_real_leds()
+             if not self.strip and HAS_LEDS:
+                print("Switching to Real LEDs...")
+                self._init_real_leds()
         
         self.mock_mode = new_mock
 
