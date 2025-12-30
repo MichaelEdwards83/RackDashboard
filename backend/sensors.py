@@ -109,7 +109,6 @@ class SensorManager:
         current_time = time.time()
         if not self.mock_mode and (current_time - self._last_readings_time > 5):
              try:
-             try:
                  available = []
                  try:
                      available = W1ThermSensor.get_available_sensors()
@@ -128,7 +127,6 @@ class SensorManager:
                                 available.append(NativeW1Sensor(sensor_id))
                         except: pass
 
-                 # Debug logging
                  # Debug logging
                  if len(available) != len(self.sensors):
                      print(f"[DEBUG SCAN] Scan found {len(available)} sensors: {[s.id for s in available]}")
