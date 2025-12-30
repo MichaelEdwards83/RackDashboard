@@ -53,7 +53,8 @@ async def run_background_tasks():
             leds_mgr.update_from_sensors(readings)
             
             # 3. Opportunistic Weather Update (internal cache handles interval)
-            weather_mgr.get_weather()
+            # Run in thread to prevent blocking loop
+            await asyncio.to_thread(weather_mgr.get_weather)
             
             # Sleep
             await asyncio.sleep(2)

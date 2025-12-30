@@ -58,11 +58,14 @@ class SensorManager:
         if not self.mock_mode and (current_time - self._last_readings_time > 5):
              try:
                  available = W1ThermSensor.get_available_sensors()
-                 # Only update if we found something (or to detect loss)
-                 # To avoid jitter, we just update our internal list.
+                 # Debug logging
+                 if len(available) != len(self.sensors):
+                     print(f"[DEBUG SCAN] Scan found {len(available)} sensors: {[s.id for s in available]}")
+                 
                  self.sensors = available
                  self._last_readings_time = current_time
-             except Exception:
+             except Exception as e:
+                 print(f"[DEBUG SCAN] Scan Error: {e}")
                  pass # Ignore scan errors, keep old list
         
         if self.mock_mode:
