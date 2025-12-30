@@ -11,15 +11,6 @@ if command -v wlr-randr &> /dev/null; then
     wlr-randr --output HDMI-A-2 --transform 90
 fi
 
-# Screen Power Settings (Prevent blanking)
-xset s off -dpms 2>/dev/null
-xset s noblank 2>/dev/null
-
-# Hide Mouse Cursor (requires unclutter)
-if command -v unclutter &> /dev/null; then
-    unclutter -idle 0.5 -root &
-fi
-
 echo "Starting Backend..."
 cd backend
 # Activate venv!
