@@ -6,6 +6,11 @@
 APP_DIR=$(dirname "$0")/..
 cd "$APP_DIR"
 
+# FORCE SCREEN ROTATION
+if command -v wlr-randr &> /dev/null; then
+    wlr-randr --output HDMI-A-2 --transform 90
+fi
+
 echo "Starting Backend..."
 cd backend
 # Activate venv!
@@ -43,7 +48,7 @@ else
     exit 1
 fi
 
-$BROWSER --kiosk --noerrdialogs --disable-infobars --check-for-update-interval=31536000 "http://localhost:5173" &
+$BROWSER --password-store=basic --kiosk --noerrdialogs --disable-infobars --check-for-update-interval=31536000 "http://localhost:5173" &
 
 # Trap cleanup
 trap "kill $BACKEND_PID $FRONTEND_PID; exit" SIGINT SIGTERM

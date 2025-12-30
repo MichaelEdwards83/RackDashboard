@@ -8,7 +8,8 @@ from config import CONFIG
 try:
     from w1thermsensor import W1ThermSensor, Sensor as W1SensorType
     HAS_W1 = True
-except ImportError:
+except Exception:
+    # Catches ImportError AND w1thermsensor.errors.KernelModuleLoadError
     HAS_W1 = False
 
 class SensorManager:
