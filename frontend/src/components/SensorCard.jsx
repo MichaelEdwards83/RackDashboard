@@ -19,11 +19,11 @@ function SensorCard({ sensor }) {
 
     return (
         <div className={`glass-panel h-full flex flex-col items-center justify-center p-2 transition-all duration-500 ${getBorderColor(sensor.status)}`}>
-            <h3 className="text-gray-400 text-lg font-medium uppercase tracking-wider mb-2 text-center w-full px-1 truncate">{sensor.name}</h3>
+            <h3 className="text-gray-400 text-2xl font-semibold uppercase tracking-wider mb-2 text-center w-full px-1 truncate">{sensor.name}</h3>
 
-            <div className={`text-5xl font-bold flex items-start tabular-nums tracking-tighter justify-center ${getStatusColor(sensor.status)}`}>
+            <div className={`text-7xl font-bold flex items-start tabular-nums tracking-tighter justify-center ${getStatusColor(sensor.status)}`}>
                 {sensor.temp}
-                <span className="text-xl mt-1 ml-1">°F</span>
+                <span className="text-3xl mt-2 ml-1">°F</span>
             </div>
 
             {sensor.status === 'critical' && (
