@@ -1,7 +1,7 @@
 import random
 import time
 import os
-from typing import List, Dict
+from typing import List, Dict, Any
 from config import CONFIG
 
 # Try to import w1thermsensor, fail gracefully if not on Pi/installed
