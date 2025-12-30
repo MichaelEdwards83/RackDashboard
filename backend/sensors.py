@@ -90,11 +90,9 @@ class SensorManager:
                     for path in manual_paths:
                         try:
                             sensor_id = os.path.basename(path)
-                            # Instantiate Native or Library based on availability
-                            if HAS_W1:
-                                found_sensors.append(W1ThermSensor(W1SensorType.DS18B20, sensor_id))
-                            else:
-                                found_sensors.append(NativeW1Sensor(sensor_id))
+                            # ALWAYS use NativeW1Sensor when manually discovering
+                            # The library seems unreliable if it couldn't find them itself
+                            found_sensors.append(NativeW1Sensor(sensor_id))
                                 
                         except Exception as e2:
                             print(f"Failed to load manual sensor {path}: {e2}")
@@ -131,10 +129,8 @@ class SensorManager:
                      for path in manual_paths:
                         try:
                             sensor_id = os.path.basename(path)
-                            if HAS_W1:
-                                available.append(W1ThermSensor(W1SensorType.DS18B20, sensor_id))
-                            else:
-                                available.append(NativeW1Sensor(sensor_id))
+                            # Force Native
+                            available.append(NativeW1Sensor(sensor_id))
                         except: pass
 
                  # Debug logging
