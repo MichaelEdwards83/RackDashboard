@@ -72,4 +72,17 @@ class WeatherManager:
 
     def _update_location_auto(self):
         try:
+            # Use ip-api to get lat/lon based on public IP
+            r = requests.get("http://ip-api.com/json/", timeout=5)
+            data = r.json()
+            if data.get("status") == "success":
+                self.lat = data.get("lat")
+                self.lon = data.get("lon")
+                self.location_name = data.get("city", "Unknown")
+                log_debug(f"Location Found: {self.location_name} ({self.lat}, {self.lon})")
+            else:
+                 log_debug(f"Location API failed status: {data}")
+        except Exception as e:
             print(f"Error auto-detecting location: {e}")
+            log_debug(f"Location Detect Exception: {e}")
+            # Fallback to defaults (optional)
