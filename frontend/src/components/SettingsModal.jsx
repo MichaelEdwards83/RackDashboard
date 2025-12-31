@@ -12,6 +12,7 @@ function SettingsModal({ onClose }) {
     const [ntp, setNtp] = useState("")
     const [autoLoc, setAutoLoc] = useState(true)
     const [mock, setMock] = useState(false)
+    const [brightness, setBrightness] = useState(255)
 
     // Per-sensor config state
     const [selectedScope, setSelectedScope] = useState("global") // "global" or sensor_id
@@ -35,6 +36,7 @@ function SettingsModal({ onClose }) {
             setNtp(c.ntp_server)
             setAutoLoc(c.location.auto)
             setMock(c.mock_mode)
+            setBrightness(c.led_brightness !== undefined ? c.led_brightness : 255)
 
             // Init with global values
             const globalThr = c.temp_thresholds?.global || { warning: 26, critical: 30 }
@@ -82,7 +84,8 @@ function SettingsModal({ onClose }) {
                 threshold_critical: parseFloat(crit),
                 sensor_id: selectedScope,
                 sensor_name: selectedScope !== "global" ? sensorName : undefined,
-                mock_mode: mock
+                mock_mode: mock,
+                led_brightness: parseInt(brightness)
             })
             // Update local config state to reflect changes without full reload
             const newConfig = { ...config }
@@ -204,6 +207,7 @@ function SettingsModal({ onClose }) {
                                     <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${autoLoc ? 'left-7' : 'left-1'}`}></div>
                                 </button>
                             </div>
+
                             <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg mt-2">
                                 <div>
                                     <div className="font-medium">Mock Mode</div>
@@ -216,6 +220,16 @@ function SettingsModal({ onClose }) {
                                 >
                                     <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${mock ? 'left-7' : 'left-1'}`}></div>
                                 </button>
+                            </div>
+
+                            {/* LED Brightness */}
+                            <div className="mt-4">
+                                <label className="block text-sm font-medium text-gray-400 mb-1">LED Brightness ({brightness})</label>
+                                <input
+                                    type="range" min="0" max="255" step="5"
+                                    value={brightness} onChange={e => setBrightness(e.target.value)}
+                                    className="w-full accent-blue-500"
+                                />
                             </div>
                         </div>
 
@@ -230,7 +244,7 @@ function SettingsModal({ onClose }) {
                     </div>
                 )}
             </div>
-        </div>
+        </div >
     )
 }
 

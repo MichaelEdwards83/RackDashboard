@@ -54,12 +54,28 @@ rest:
         unit_of_measurement: "°F"
         device_class: temperature
 
-      # Sensor 5
       - name: "Dashboard Exhaust"
         value_template: "{{ value_json['28-9z8y7x6w5v4u']['temp'] }}"
         unit_of_measurement: "°F"
         device_class: temperature
+
+## Step 3: Brightness Control (Optional)
+To control the LED brightness from Home Assistant, add this to your `configuration.yaml`:
+
+```yaml
+rest_command:
+  pidash_set_brightness:
+    url: "http://localhost:8000/api/settings"
+    method: post
+    payload: '{"led_brightness": {{ brightness }}}'
+    content_type:  'application/json; charset=utf-8'
+```
+*Usage:* Call this service with `brightness` (0-255). Example:
+```yaml
+service: rest_command.pidash_set_brightness
+data:
+  brightness: 128
 ```
 
-## Step 3: Restart Home Assistant
+## Step 4: Restart Home Assistant
 After saving the file, restart Home Assistant to apply the changes. Your new sensors will appear as `sensor.dashboard_bay_a`, etc.
