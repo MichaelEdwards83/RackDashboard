@@ -11,7 +11,7 @@ if command -v wlr-randr &> /dev/null; then
     wlr-randr --output HDMI-A-2 --transform 90
 fi
 
-echo "Starting Backend..."
+echo "Starting Backend (serving static frontend)..."
 cd backend
 # Activate venv!
 source venv/bin/activate
@@ -19,24 +19,17 @@ source venv/bin/activate
 python3 -m uvicorn main:app --host 0.0.0.0 --port 8000 &
 BACKEND_PID=$!
 
-echo "Starting Frontend (Kiosk)..."
-cd ../frontend
-# For dev/preview, we use 'vite preview' or 'npm run dev'
-# Ideally build first: npm run build
-npm run dev -- --host &
-FRONTEND_PID=$!
-
-# Wait for Frontend to be ready (up to 30 seconds)
-echo "Waiting for Frontend to launch..."
+# Wait for Backend to be ready (up to 30 seconds)
+echo "Waiting for Backend (and frontend assets) to launch..."
 for i in {1..30}; do
-    if curl -s http://localhost:5173 >/dev/null; then
-        echo "Frontend is up!"
+    if curl -s http://localhost:8000 >/dev/null; then
+        echo "Backend is up!"
         break
     fi
     sleep 1
 done
 
-# Launch Chromium in Kiosk Mode pointing to the local frontend
+# Launch Chromium in Kiosk Mode pointing to the local backend
 # Note: Adjust port if needed
 # try finding chromium executable (pi usually uses 'chromium-browser' or 'chromium')
 if command -v chromium-browser &> /dev/null; then
@@ -48,9 +41,9 @@ else
     exit 1
 fi
 
-$BROWSER --password-store=basic --kiosk --noerrdialogs --disable-infobars --check-for-update-interval=31536000 "http://localhost:5173" &
+$BROWSER --password-store=basic --kiosk --noerrdialogs --disable-infobars --check-for-update-interval=31536000 "http://localhost:8000" &
 
 # Trap cleanup
-trap "kill $BACKEND_PID $FRONTEND_PID; exit" SIGINT SIGTERM
+trap "kill $BACKEND_PID; exit" SIGINT SIGTERM
 
 wait
