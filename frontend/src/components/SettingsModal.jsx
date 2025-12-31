@@ -113,7 +113,7 @@ function SettingsModal({ onClose }) {
 
     return (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center">
-            <div className="glass-panel w-[500px] max-h-[90vh] overflow-y-auto p-6 text-left relative scrollbar-hide">
+            <div className="glass-panel w-[500px] max-h-[90vh] overflow-y-auto p-6 text-left relative">
                 <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-white sticky">
                     <X />
                 </button>
