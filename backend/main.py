@@ -36,78 +36,11 @@ class SettingsUpdate(BaseModel):
     sensor_id: str = None # If provided, thresholds apply to this sensor. If "global" or None, applies globally.
     sensor_name: str = None # Optional name update for sensor_id
     mock_mode: bool = None
+    led_brightness: int = None
 
 # ... (startup event and background tasks unchanged) ...
 
-@app.on_event("startup")
-async def startup_event():
-    # Start background polling loop
-    asyncio.create_task(run_background_tasks())
-
-async def run_background_tasks():
-    while True:
-        try:
-            # 1. Read Sensors
-            readings = sensors_mgr.get_temperatures()
-            
-            # 2. Update LEDs
-            leds_mgr.update_from_sensors(readings)
-            
-            # 3. Opportunistic Weather Update (internal cache handles interval)
-            # Run in thread to prevent blocking loop
-            await asyncio.to_thread(weather_mgr.get_weather)
-            
-            # Sleep
-            await asyncio.sleep(2)
-        except Exception as e:
-            print(f"Background loop error: {e}")
-            await asyncio.sleep(5)
-
-@app.on_event("shutdown")
-def shutdown_event():
-    leds_mgr.cleanup()
-
-@app.get("/api/status")
-def get_status():
-    readings = sensors_mgr.get_temperatures()
-    # Format current time
-    now = datetime.now()
-    
-    return {
-        "time": now.strftime("%H:%M"),
-        "date": now.strftime("%A, %B %d"),
-        "sensors": readings,
-        "led_status": leds_mgr.current_colors if leds_mgr.mock_mode else "hardware_controlled"
-    }
-
-@app.get("/api/weather")
-def get_weather():
-    w = weather_mgr.get_weather()
-    if not w:
-        return {"status": "unavailable"}
-    return w
-
-@app.get("/api/ha")
-def get_ha_data():
-    """
-    Simplified endpoint for Home Assistant.
-    Returns a dictionary keyed by Sensor ID for stable parsing.
-    Example: { "28-03...": { "temp": 72.1, "name": "Bay A" } }
-    """
-    readings = sensors_mgr.get_temperatures()
-    data = {}
-    for r in readings:
-        # Use simple dictionary struct
-        data[r["id"]] = {
-            "temp": r["temp"],
-            "name": r["name"],
-            "status": r["status"]
-        }
-    return data
-
-@app.get("/api/settings")
-def get_settings():
-    return CONFIG.get_all()
+# ...
 
 @app.post("/api/settings")
 def update_settings(settings: SettingsUpdate):
@@ -162,6 +95,10 @@ def update_settings(settings: SettingsUpdate):
         # Update Mock Mode
         if settings.mock_mode is not None:
             current["mock_mode"] = settings.mock_mode
+            
+        # Update LED Brightness
+        if settings.led_brightness is not None:
+            current["led_brightness"] = settings.led_brightness
             
         CONFIG.save()
         return {"status": "ok", "config": current}

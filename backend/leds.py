@@ -20,7 +20,7 @@ class LEDManager:
         self.led_pin = 18 # GPIO 18 (PCM)
         self.led_freq_hz = 800000
         self.led_dma = 10
-        self.led_brightness = 255
+        self.led_brightness = CONFIG.get("led_brightness", 255)
         self.led_invert = False
         self.led_channel = 0
         
@@ -41,6 +41,19 @@ class LEDManager:
 
     def reload_config(self):
         new_mock = CONFIG.get("mock_mode")
+        new_brightness = CONFIG.get("led_brightness", 255)
+        
+        # Update Brightness if changed
+        if self.strip and new_brightness != self.led_brightness:
+            self.led_brightness = new_brightness
+            try:
+                self.strip.setBrightness(self.led_brightness)
+                # Need to show to apply? Usually yes.
+            except Exception as e:
+                print(f"Error setting brightness: {e}")
+
+        self.led_brightness = new_brightness
+
         if self.mock_mode and not new_mock:
              # Switching from Mock -> Real
              if not self.strip and HAS_LEDS:

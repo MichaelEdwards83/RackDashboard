@@ -15,6 +15,7 @@ DEFAULT_CONFIG = {
     },
     "sensor_names": {}, # Format: "sensor_id": "Custom Name"
     "ntp_server": "pool.ntp.org",
+    "led_brightness": 255,
     "location": {
         "auto": True,
         "latitude": 0.0,
