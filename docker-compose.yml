@@ -1,0 +1,32 @@
+version: '3'
+services:
+  homeassistant:
+    container_name: homeassistant
+    image: "ghcr.io/home-assistant/home-assistant:stable"
+    volumes:
+      - ./ha_config:/config
+      - /etc/localtime:/etc/localtime:ro
+    restart: unless-stopped
+    privileged: true
+    network_mode: host
+
+  zwave-js-ui:
+    container_name: zwave-js-ui
+    image: zwavejs/zwave-js-ui:latest
+    restart: always
+    tty: true
+    stop_signal: SIGINT
+    environment:
+      - SESSION_SECRET=change_me_to_something_secure
+      - ZWAVEJS_EXTERNAL_CONFIG=/usr/src/app/store/.config-db
+      # - TZ=America/Los_Angeles
+    devices:
+      # IMPORTANT: We need to find the correct path for your Zooz stick
+      # It is usually /dev/ttyACM0, /dev/ttyAAB0, or /dev/serial/by-id/...
+      # User must update this after pulling!
+      - /dev/ttyACM0:/dev/zwave
+    volumes:
+      - ./zwave_config:/usr/src/app/store
+    ports:
+      - '8091:8091' # UI
+      - '3000:3000' # WebSocket
