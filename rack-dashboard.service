@@ -1,6 +1,7 @@
 [Unit]
 Description=Rack Dashboard Backend
-After=network.target
+After=network-online.target
+Wants=network-online.target
 
 [Service]
 # Replace 'pidash' with your username if different
@@ -14,7 +15,7 @@ WorkingDirectory=/home/pidash/Documents/pidash/backend
 ExecStart=/home/pidash/Documents/pidash/backend/venv/bin/python3 main.py
 
 Restart=always
-RestartSec=5
+RestartSec=10
 
 [Install]
 WantedBy=multi-user.target
