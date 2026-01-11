@@ -43,24 +43,38 @@ function App() {
     }
   }
 
-  const fetchWeather = async () => {
-    try {
-      const res = await axios.get('/api/weather')
-      setWeather(res.data)
-    } catch (e) {
-      console.error("Weather fetch error", e)
-    }
-  }
-
+  // Smart polling for weather
   useEffect(() => {
+    let timeoutId;
+
+    const fetchWeatherLoop = async () => {
+      let nextDelay = 15 * 60 * 1000; // 15 mins default
+
+      try {
+        const res = await axios.get('/api/weather')
+        setWeather(res.data)
+
+        // If offline or invalid, retry quickly
+        if (!res.data || res.data.location_name === "Offline" || res.data.temp === "--") {
+          console.log("Weather offline, retrying in 10s...");
+          nextDelay = 10 * 1000;
+        }
+      } catch (e) {
+        console.error("Weather fetch error", e)
+        nextDelay = 10 * 1000; // Retry quickly on network error
+      }
+
+      timeoutId = setTimeout(fetchWeatherLoop, nextDelay);
+    }
+
+    // Start loops
     fetchData()
-    fetchWeather()
-    const statusInterval = setInterval(fetchData, 10000) // 10 seconds
-    const weatherInterval = setInterval(fetchWeather, 1800000) // 30 mins
+    fetchWeatherLoop()
+    const statusInterval = setInterval(fetchData, 10000)
 
     return () => {
       clearInterval(statusInterval)
-      clearInterval(weatherInterval)
+      clearTimeout(timeoutId)
     }
   }, [])
 
