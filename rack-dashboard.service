@@ -1,0 +1,20 @@
+[Unit]
+Description=Rack Dashboard Backend
+After=network.target
+
+[Service]
+# Replace 'pidash' with your username if different
+User=pidash
+Group=pidash
+
+# Adjust path if your repo is elsewhere
+WorkingDirectory=/home/pidash/Documents/pidash/backend
+
+# Use the venv python
+ExecStart=/home/pidash/Documents/pidash/backend/venv/bin/python3 main.py
+
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
