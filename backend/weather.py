@@ -4,6 +4,8 @@ from config import CONFIG
 from typing import Dict, Any
 
 def log_debug(msg):
+    # Print to stdout so it shows in logs/console immediately
+    print(f"[WEATHER] {msg}")
     try:
         with open("backend_debug.log", "a") as f:
             f.write(f"[WEATHER] {time.ctime()}: {msg}\n")
@@ -41,28 +43,30 @@ class WeatherManager:
 
         # Determine location
         loc = CONFIG.get("location")
-        lat = loc["latitude"]
-        lon = loc["longitude"]
+        config_lat = loc["latitude"]
+        config_lon = loc["longitude"]
+        config_name = loc["name"]
 
-        if loc["auto"]:
-             # Only try auto-loc if we haven't successfully done it recently/ever
-             # But here we try every time if 'auto' is set? That's bad.
-             # Let's simple check: if we have 0.0,0.0 OR it's been a long time (e.g. on boot)
-             self._update_location_auto()
-             # Refresh from config (in case it updated)
+        # Ensure we have a location
+        if not self.lat or not self.lon:
+            self._update_location_auto()
+            
+        # FALLBACK: If auto-detection failed (still None), use Config
+        if not self.lat or not self.lon:
+            log_debug(f"Auto-location failed. Falling back to config: {config_name}")
+            self.lat = config_lat
+            self.lon = config_lon
+            self.location_name = config_name
+
         # Fetch Weather
         try:
-            # 1. Update Location if needed
-            if not self.lat or not self.lon:
-                self._update_location_auto()
-            
             # 2. Fetch Weather
             url = f"https://api.open-meteo.com/v1/forecast?latitude={self.lat}&longitude={self.lon}&current=temperature_2m,weather_code&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch"
             
             try:
                 r = requests.get(url, timeout=10)
+                r.raise_for_status() # Raise error for 4xx/5xx
                 data = r.json()
-                pass # success
             except Exception as e:
                 log_debug(f"API Request Failed: {e}")
                 raise e
@@ -74,7 +78,10 @@ class WeatherManager:
                 "unit": "F",
                 "location_name": self.location_name
             }
+            self.current_weather = self._cached_weather
             self._last_weather_time = time.time()
+            self.last_update = time.time()
+            log_debug(f"Weather updated for {self.location_name}: {self._cached_weather['temp']}F")
             return self._cached_weather
 
         except Exception as e:
@@ -90,6 +97,11 @@ class WeatherManager:
 
     def _update_location_auto(self):
         try:
+            # Check config first - if auto is False, don't ping IP API
+            loc = CONFIG.get("location")
+            if not loc.get("auto", True):
+                return # Skip auto
+
             # Use ip-api to get lat/lon based on public IP
             r = requests.get("http://ip-api.com/json/", timeout=5)
             data = r.json()
@@ -97,10 +109,11 @@ class WeatherManager:
                 self.lat = data.get("lat")
                 self.lon = data.get("lon")
                 self.location_name = data.get("city", "Unknown")
-                log_debug(f"Location Found: {self.location_name} ({self.lat}, {self.lon})")
+                log_debug(f"Location Found (Auto): {self.location_name} ({self.lat}, {self.lon})")
             else:
                  log_debug(f"Location API failed status: {data}")
         except Exception as e:
             print(f"Error auto-detecting location: {e}")
             log_debug(f"Location Detect Exception: {e}")
-            # Fallback to defaults (optional)
+            # Ensure we don't leave partial state if possible, though lat/lon should stay None
+

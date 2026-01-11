@@ -38,9 +38,9 @@
     "ntp_server": "pool.ntp.org",
     "location": {
         "auto": true,
-        "latitude": 44.0597,
-        "longitude": -121.3157,
-        "name": "Bend"
+        "latitude": 36.1699,
+        "longitude": -115.1398,
+        "name": "Las Vegas"
     },
     "mock_mode": true
 }
