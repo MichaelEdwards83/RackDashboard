@@ -16,6 +16,7 @@ services:
     restart: always
     tty: true
     stop_signal: SIGINT
+    network_mode: host
     environment:
       - SESSION_SECRET=change_me_to_something_secure
       - ZWAVEJS_EXTERNAL_CONFIG=/usr/src/app/store/.config-db
@@ -27,6 +28,3 @@ services:
       - /dev/ttyACM0:/dev/zwave
     volumes:
       - ./zwave_config:/usr/src/app/store
-    ports:
-      - '8091:8091' # UI
-      - '3000:3000' # WebSocket
