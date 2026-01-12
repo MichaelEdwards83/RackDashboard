@@ -35,29 +35,49 @@ rest:
         value_template: "{{ value_json['28-3c01f096d29c']['temp'] }}"
         unit_of_measurement: "°F"
         device_class: temperature
+        json_attributes_path: "$.['28-3c01f096d29c']"
+        json_attributes:
+          - led_rgb
+          - status
       
       # Sensor 2
       - name: "Dashboard Bay B"
         value_template: "{{ value_json['28-8a2b1c4d5e6f']['temp'] }}"
         unit_of_measurement: "°F"
         device_class: temperature
+        json_attributes_path: "$.['28-8a2b1c4d5e6f']"
+        json_attributes:
+          - led_rgb
+          - status
 
       # Sensor 3
       - name: "Dashboard Bay C"
         value_template: "{{ value_json['28-7d3e4f5g6h7i']['temp'] }}"
         unit_of_measurement: "°F"
         device_class: temperature
+        json_attributes_path: "$.['28-7d3e4f5g6h7i']"
+        json_attributes:
+          - led_rgb
+          - status
 
       # Sensor 4
       - name: "Dashboard Ambient"
         value_template: "{{ value_json['28-1a2b3c4d5e6f']['temp'] }}"
         unit_of_measurement: "°F"
         device_class: temperature
+        json_attributes_path: "$.['28-1a2b3c4d5e6f']"
+        json_attributes:
+          - led_rgb
+          - status
 
       - name: "Dashboard Exhaust"
         value_template: "{{ value_json['28-9z8y7x6w5v4u']['temp'] }}"
         unit_of_measurement: "°F"
         device_class: temperature
+        json_attributes_path: "$.['28-9z8y7x6w5v4u']"
+        json_attributes:
+          - led_rgb
+          - status
 
 ## Step 3: Brightness Control (Optional)
 To control the LED brightness from Home Assistant, add this to your `configuration.yaml`:

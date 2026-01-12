@@ -95,12 +95,17 @@ def get_ha_data():
     """
     readings = sensors_mgr.get_temperatures()
     data = {}
-    for r in readings:
-        # Use simple dictionary struct
+    for i, r in enumerate(readings):
+        # Fetch calculated LED color
+        color = (0, 0, 0)
+        if i < len(leds_mgr.current_colors):
+            color = leds_mgr.current_colors[i]
+
         data[r["id"]] = {
             "temp": r["temp"],
             "name": r["name"],
-            "status": r["status"]
+            "status": r["status"],
+            "led_rgb": color
         }
     return data
 
