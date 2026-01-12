@@ -28,13 +28,7 @@
             }
         }
     },
-    "sensor_names": {
-        "mock-1": "Bay A",
-        "mock-2": "Bay B",
-        "mock-3": "Bay C",
-        "mock-4": "Ambient",
-        "mock-5": "Exhaust"
-    },
+    "sensor_names": {},
     "ntp_server": "pool.ntp.org",
     "location": {
         "auto": true,
@@ -42,5 +36,5 @@
         "longitude": -115.1398,
         "name": "Las Vegas"
     },
-    "mock_mode": true
+    "mock_mode": false
 }
