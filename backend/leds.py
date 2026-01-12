@@ -18,7 +18,7 @@ class LEDManager:
         self.led_count = 8 # User specified 8 LEDs
         self.led_pin = None
         if HAS_LEDS:
-            self.led_pin = board.D18 # GPIO 18
+            self.led_pin = board.D10 # GPIO 10 (SPI MOSI)
         
         # self.current_brightness is float 0.0-1.0
         self.current_brightness = float(CONFIG.get("led_brightness", 255)) / 255.0

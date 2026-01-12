@@ -49,7 +49,7 @@ dtoverlay=w1-gpio,gpiopin=17
 1.  **Red (5V)**: Connect to **5V (Pin 2)** *or external 5V PSU if >10 LEDs*.
 2.  **White (GND)**: Connect to **Ground (Pin 9)**.
     - *If using external PSU, connect PSU ground to Pi ground.*
-3.  **Green (Data)**: Connect to **GPIO 18 (Pin 12)**.
+3.  **Green (Data)**: Connect to **GPIO 10 (Pin 19)** (SPI0 MOSI).
 
 ## Diagram
 
@@ -62,7 +62,7 @@ dtoverlay=w1-gpio,gpiopin=17
        |
        +--> Data (Sensors) + Resistor
 ...
-[GP18] 12 o o 11
+[GP10] 19 o o 20
        |
        +--> Data (LEDs)
 ```
