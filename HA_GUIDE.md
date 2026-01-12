@@ -93,25 +93,32 @@ sensor:
       - status
 
 # 3. Light Entity (Master Brightness Control)
-light:
-  - platform: template
-    lights:
-      rack_leds:
-        friendly_name: "Rack LEDs"
+# Modern "template" syntax (replaces legacy "light: platform: template")
+template:
+  - light:
+      - name: "Rack LEDs"
         unique_id: "rack_dashboard_led_controller"
-        value_template: "{{ state_attr('sensor.rack_dashboard_settings', 'brightness') | int > 0 }}"
-        level_template: "{{ state_attr('sensor.rack_dashboard_settings', 'brightness') | int }}"
-        color_template: "{{ state_attr('sensor.dashboard_bay_a', 'led_rgb') }}"
         
+        # State: On if brightness > 0
+        state: "{{ state_attr('sensor.rack_dashboard_settings', 'brightness') | int > 0 }}"
+        
+        # Brightness: 0-255
+        level: "{{ state_attr('sensor.rack_dashboard_settings', 'brightness') | int }}"
+        
+        # Color: RGB List [r, g, b]
+        rgb: "{{ state_attr('sensor.dashboard_bay_a', 'led_rgb') }}"
+
         turn_on:
-          service: rest_command.pidash_set_brightness
+          action: rest_command.pidash_set_brightness
           data:
             brightness: 255
+
         turn_off:
-          service: rest_command.pidash_set_brightness
+          action: rest_command.pidash_set_brightness
           data:
             brightness: 0
+
         set_level:
-          service: rest_command.pidash_set_brightness
+          action: rest_command.pidash_set_brightness
           data:
             brightness: "{{ brightness }}"
