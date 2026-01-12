@@ -18,6 +18,7 @@ sensor:
     resource: http://localhost:8000/api/ha
     scan_interval: 5
     name: "Rack Dashboard Settings"
+    unique_id: "rack_dashboard_settings_global"
     value_template: "{{ value_json['_global']['mode'] }}"
     json_attributes_path: "$.['_global']"
     json_attributes:
@@ -30,6 +31,7 @@ sensor:
     resource: http://localhost:8000/api/ha
     scan_interval: 10
     name: "Dashboard Bay A"
+    unique_id: "rack_dashboard_sensor_bay_a"
     value_template: "{{ value_json['YOUR_BAY_A_ID']['temp'] }}"
     unit_of_measurement: "°F"
     device_class: temperature
@@ -42,6 +44,7 @@ sensor:
     resource: http://localhost:8000/api/ha
     scan_interval: 10
     name: "Dashboard Bay B"
+    unique_id: "rack_dashboard_sensor_bay_b"
     value_template: "{{ value_json['YOUR_BAY_B_ID']['temp'] }}"
     unit_of_measurement: "°F"
     device_class: temperature
@@ -54,6 +57,7 @@ sensor:
     resource: http://localhost:8000/api/ha
     scan_interval: 10
     name: "Dashboard Bay C"
+    unique_id: "rack_dashboard_sensor_bay_c"
     value_template: "{{ value_json['YOUR_BAY_C_ID']['temp'] }}"
     unit_of_measurement: "°F"
     device_class: temperature
@@ -66,6 +70,7 @@ sensor:
     resource: http://localhost:8000/api/ha
     scan_interval: 10
     name: "Dashboard Ambient"
+    unique_id: "rack_dashboard_sensor_ambient"
     value_template: "{{ value_json['YOUR_AMBIENT_ID']['temp'] }}"
     unit_of_measurement: "°F"
     device_class: temperature
@@ -78,6 +83,7 @@ sensor:
     resource: http://localhost:8000/api/ha
     scan_interval: 10
     name: "Dashboard Exhaust"
+    unique_id: "rack_dashboard_sensor_exhaust"
     value_template: "{{ value_json['YOUR_EXHAUST_ID']['temp'] }}"
     unit_of_measurement: "°F"
     device_class: temperature
@@ -92,6 +98,7 @@ light:
     lights:
       rack_leds:
         friendly_name: "Rack LEDs"
+        unique_id: "rack_dashboard_led_controller"
         value_template: "{{ state_attr('sensor.rack_dashboard_settings', 'brightness') | int > 0 }}"
         level_template: "{{ state_attr('sensor.rack_dashboard_settings', 'brightness') | int }}"
         color_template: "{{ state_attr('sensor.dashboard_bay_a', 'led_rgb') }}"
