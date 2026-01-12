@@ -93,7 +93,6 @@ sensor:
       - status
 
 # 3. Light Entity (Master Brightness Control)
-# 3. Light Entity (Master Brightness Control)
 # Modern "template" syntax (replaces legacy "light: platform: template")
 template:
   - light:
@@ -104,7 +103,7 @@ template:
         state: "{{ state_attr('sensor.rack_dashboard_settings', 'brightness') | int > 0 }}"
         
         # Brightness: 0-255
-        brightness: "{{ state_attr('sensor.rack_dashboard_settings', 'brightness') | int }}"
+        level: "{{ state_attr('sensor.rack_dashboard_settings', 'brightness') | int }}"
         
         # Color: RGB List [r, g, b]
         rgb: "{{ state_attr('sensor.dashboard_bay_a', 'led_rgb') }}"
