@@ -82,6 +82,9 @@ template:
       - name: "Rack LEDs"
         unique_id: "rack_dashboard_led_controller"
         
+        # DEFINING SUPPORTED MODES FIXES THE WARNING
+        supported_color_modes: ["brightness", "rgb"]
+        
         # State: On if brightness > 0 (Added defaults to prevent startup errors)
         state: "{{ state_attr('sensor.rack_dashboard_settings', 'brightness') | int(0) > 0 }}"
         
