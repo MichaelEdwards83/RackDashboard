@@ -177,7 +177,7 @@ class SensorManager:
                     new_order = []
                     
                     for i, item in enumerate(final_slots):
-                        if isinstance(item, (W1SensorType, NativeW1Sensor)):
+                        if isinstance(item, (W1ThermSensor, NativeW1Sensor)):
                             try:
                                 temp = item.get_temperature()
                                 if CONFIG.get("temp_unit") == "F":
@@ -213,7 +213,6 @@ class SensorManager:
                              new_order.append(miss_id)
                         else:
                              # FALLBACK / ERROR
-                             print(f"[DEBUG] Item {item} (Type: {type(item)}) failed isinstance check against {W1SensorType}, {NativeW1Sensor}")
                              readings.append({
                                 "id": f"empty-{i}",
                                 "name": "Empty Slot",
