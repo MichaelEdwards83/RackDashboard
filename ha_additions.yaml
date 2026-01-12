@@ -1,0 +1,110 @@
+
+# ==========================================
+# Rack Dashboard Integration
+# ==========================================
+
+# 1. REST Command to Control Brightness
+rest_command:
+  pidash_set_brightness:
+    url: "http://localhost:8000/api/settings"
+    method: post
+    payload: '{"led_brightness": {{ brightness }}}'
+    content_type:  'application/json; charset=utf-8'
+
+# 2. Sensors (Temperatures + Status + Global Settings)
+sensor:
+  # The Settings Sensor (Tracks Brightness)
+  - platform: rest
+    resource: http://localhost:8000/api/ha
+    scan_interval: 5
+    name: "Rack Dashboard Settings"
+    value_template: "{{ value_json['_global']['mode'] }}"
+    json_attributes_path: "$.['_global']"
+    json_attributes:
+      - brightness
+
+  # The Temperature Probes
+  # REPLACE 'YOUR_BAY_A_ID' etc. with actual IDs from http://<PI_IP>:8000/api/ha
+  
+  - platform: rest
+    resource: http://localhost:8000/api/ha
+    scan_interval: 10
+    name: "Dashboard Bay A"
+    value_template: "{{ value_json['YOUR_BAY_A_ID']['temp'] }}"
+    unit_of_measurement: "°F"
+    device_class: temperature
+    json_attributes_path: "$.['YOUR_BAY_A_ID']"
+    json_attributes:
+      - led_rgb
+      - status
+
+  - platform: rest
+    resource: http://localhost:8000/api/ha
+    scan_interval: 10
+    name: "Dashboard Bay B"
+    value_template: "{{ value_json['YOUR_BAY_B_ID']['temp'] }}"
+    unit_of_measurement: "°F"
+    device_class: temperature
+    json_attributes_path: "$.['YOUR_BAY_B_ID']"
+    json_attributes:
+      - led_rgb
+      - status
+
+  - platform: rest
+    resource: http://localhost:8000/api/ha
+    scan_interval: 10
+    name: "Dashboard Bay C"
+    value_template: "{{ value_json['YOUR_BAY_C_ID']['temp'] }}"
+    unit_of_measurement: "°F"
+    device_class: temperature
+    json_attributes_path: "$.['YOUR_BAY_C_ID']"
+    json_attributes:
+      - led_rgb
+      - status
+
+  - platform: rest
+    resource: http://localhost:8000/api/ha
+    scan_interval: 10
+    name: "Dashboard Ambient"
+    value_template: "{{ value_json['YOUR_AMBIENT_ID']['temp'] }}"
+    unit_of_measurement: "°F"
+    device_class: temperature
+    json_attributes_path: "$.['YOUR_AMBIENT_ID']"
+    json_attributes:
+      - led_rgb
+      - status
+
+  - platform: rest
+    resource: http://localhost:8000/api/ha
+    scan_interval: 10
+    name: "Dashboard Exhaust"
+    value_template: "{{ value_json['YOUR_EXHAUST_ID']['temp'] }}"
+    unit_of_measurement: "°F"
+    device_class: temperature
+    json_attributes_path: "$.['YOUR_EXHAUST_ID']"
+    json_attributes:
+      - led_rgb
+      - status
+
+# 3. Light Entity (Master Brightness Control)
+light:
+  - platform: template
+    lights:
+      rack_leds:
+        friendly_name: "Rack LEDs"
+        value_template: "{{ state_attr('sensor.rack_dashboard_settings', 'brightness') | int > 0 }}"
+        level_template: "{{ state_attr('sensor.rack_dashboard_settings', 'brightness') | int }}"
+        color_template: "{{ state_attr('sensor.dashboard_bay_a', 'led_rgb') }}"
+        
+        turn_on:
+          service: rest_command.pidash_set_brightness
+          data:
+            brightness: 255
+        turn_off:
+          service: rest_command.pidash_set_brightness
+          data:
+            brightness: 0
+        set_level:
+          service: rest_command.pidash_set_brightness
+          data:
+            brightness: "{{ brightness }}"
