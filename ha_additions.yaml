@@ -104,10 +104,10 @@ template:
         state: "{{ state_attr('sensor.rack_dashboard_settings', 'brightness') | int > 0 }}"
         
         # Brightness: 0-255
-        brightness_template: "{{ state_attr('sensor.rack_dashboard_settings', 'brightness') | int }}"
+        brightness: "{{ state_attr('sensor.rack_dashboard_settings', 'brightness') | int }}"
         
         # Color: RGB List [r, g, b]
-        rgb_template: "{{ state_attr('sensor.dashboard_bay_a', 'led_rgb') }}"
+        rgb: "{{ state_attr('sensor.dashboard_bay_a', 'led_rgb') }}"
 
         turn_on:
           action: rest_command.pidash_set_brightness
