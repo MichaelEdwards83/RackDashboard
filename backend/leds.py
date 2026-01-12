@@ -98,28 +98,34 @@ class LEDManager:
         last_color = (0, 0, 0)
         
         for i in range(self.led_count):
+            # Physical LED index (Reversed)
+            target_idx = self.led_count - 1 - i
+            
+            color = (0, 0, 0)
+            
             if i < len(sensor_data):
                 status = sensor_data[i]['status']
                 
                 # Default RGB colors
                 if status == "critical":
-                    self.current_colors[i] = (255, 0, 0) # Red
+                    color = (255, 0, 0) # Red
                 elif status == "warning":
-                    self.current_colors[i] = (255, 140, 0) # Orange
+                    color = (255, 140, 0) # Orange
                 elif status == "normal":
-                    self.current_colors[i] = (0, 255, 0) # Green
+                    color = (0, 255, 0) # Green
                 elif status == "searching":
-                    self.current_colors[i] = (0, 0, 255) # Blue
+                    color = (0, 0, 255) # Blue
                 elif status == "empty":
-                    self.current_colors[i] = (0, 0, 0) # Off
+                    color = (0, 0, 0) # Off
                 else:
-                    self.current_colors[i] = (0, 50, 50) # Dim Cyan for unknown
+                    color = (0, 50, 50) # Dim Cyan for unknown
                 
-                last_color = self.current_colors[i]
+                last_color = color
             else:
-                # Fill remaining LEDs with the last known color (usually Exhaust status)
-                # If no sensors, last_color is black
-                self.current_colors[i] = last_color
+                # Fill remaining LEDs with the last known color
+                color = last_color
+            
+            self.current_colors[target_idx] = color
 
         # If we have more LEDs than sensors, make the rest ...?
         # Let's make them dim white (or off) for now. Use config?
