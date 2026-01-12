@@ -62,6 +62,8 @@ rest:
 ## Step 3: Brightness Control (Optional)
 To control the LED brightness from Home Assistant, add this to your `configuration.yaml`:
 
+### 1. Define the REST Command
+Add this to `configuration.yaml`:
 ```yaml
 rest_command:
   pidash_set_brightness:
@@ -70,11 +72,30 @@ rest_command:
     payload: '{"led_brightness": {{ brightness }}}'
     content_type:  'application/json; charset=utf-8'
 ```
-*Usage:* Call this service with `brightness` (0-255). Example:
+
+### 2. Create a Slider (Input Number)
+Add this to `configuration.yaml`:
 ```yaml
-service: rest_command.pidash_set_brightness
-data:
-  brightness: 128
+input_number:
+  rack_led_brightness:
+    name: Rack LED Brightness
+    initial: 50
+    min: 0
+    max: 255
+    step: 5
+```
+
+### 3. Create an Automation
+You can do this in the UI, or add this to `automations.yaml`:
+```yaml
+- alias: "Sync Rack LED Brightness"
+  trigger:
+    - platform: state
+      entity_id: input_number.rack_led_brightness
+  action:
+    - service: rest_command.pidash_set_brightness
+      data:
+        brightness: "{{ trigger.to_state.state | int }}"
 ```
 
 ## Step 4: Restart Home Assistant
