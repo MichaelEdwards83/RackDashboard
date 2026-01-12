@@ -180,7 +180,6 @@ def update_settings(settings: SettingsUpdate):
             current["led_brightness"] = settings.led_brightness
             
         CONFIG.save()
-        return {"status": "ok", "config": current}
         
     except Exception as e:
         try:

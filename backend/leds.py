@@ -95,24 +95,31 @@ class LEDManager:
         # Reset all to off first? Or keep last state?
         # We will overwrite indices 0..N based on sensors
         
-        for i, sensor in enumerate(sensor_data):
-            if i >= self.led_count: break
-            
-            status = sensor['status']
-            
-            # Default RGB colors
-            if status == "critical":
-                self.current_colors[i] = (255, 0, 0) # Red
-            elif status == "warning":
-                self.current_colors[i] = (255, 140, 0) # Orange
-            elif status == "normal":
-                self.current_colors[i] = (0, 255, 0) # Green
-            elif status == "searching":
-                self.current_colors[i] = (0, 0, 255) # Blue
-            elif status == "empty":
-                self.current_colors[i] = (0, 0, 0) # Off
+        last_color = (0, 0, 0)
+        
+        for i in range(self.led_count):
+            if i < len(sensor_data):
+                status = sensor_data[i]['status']
+                
+                # Default RGB colors
+                if status == "critical":
+                    self.current_colors[i] = (255, 0, 0) # Red
+                elif status == "warning":
+                    self.current_colors[i] = (255, 140, 0) # Orange
+                elif status == "normal":
+                    self.current_colors[i] = (0, 255, 0) # Green
+                elif status == "searching":
+                    self.current_colors[i] = (0, 0, 255) # Blue
+                elif status == "empty":
+                    self.current_colors[i] = (0, 0, 0) # Off
+                else:
+                    self.current_colors[i] = (0, 50, 50) # Dim Cyan for unknown
+                
+                last_color = self.current_colors[i]
             else:
-                self.current_colors[i] = (0, 50, 50) # Dim Cyan for unknown
+                # Fill remaining LEDs with the last known color (usually Exhaust status)
+                # If no sensors, last_color is black
+                self.current_colors[i] = last_color
 
         # If we have more LEDs than sensors, make the rest ...?
         # Let's make them dim white (or off) for now. Use config?
