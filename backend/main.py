@@ -95,6 +95,14 @@ def get_ha_data():
     """
     readings = sensors_mgr.get_temperatures()
     data = {}
+    
+    # 1. Global Status
+    data["_global"] = {
+        "brightness": leds_mgr.led_brightness,
+        "mode": "mock" if leds_mgr.mock_mode else "real"
+    }
+
+    # 2. Sensor Data
     for i, r in enumerate(readings):
         # Fetch calculated LED color
         color = (0, 0, 0)

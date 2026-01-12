@@ -79,11 +79,8 @@ rest:
           - led_rgb
           - status
 
-## Step 3: Brightness Control (Optional)
-To control the LED brightness from Home Assistant, add this to your `configuration.yaml`:
-
 ### 1. Define the REST Command
-Add this to `configuration.yaml`:
+Add this to `configuration.yaml` (or ensure it's there):
 ```yaml
 rest_command:
   pidash_set_brightness:
@@ -93,29 +90,55 @@ rest_command:
     content_type:  'application/json; charset=utf-8'
 ```
 
-### 2. Create a Slider (Input Number)
-Add this to `configuration.yaml`:
+### 2. Define the Status Sensor
+We need a sensor to track the current brightness and settings from the dashboard. Add this to your `sensor:` section (or `configuration.yaml`):
 ```yaml
-input_number:
-  rack_led_brightness:
-    name: Rack LED Brightness
-    initial: 50
-    min: 0
-    max: 255
-    step: 5
+  - platform: rest
+    resource: http://localhost:8000/api/ha
+    scan_interval: 5
+    name: "Rack Dashboard Settings"
+    value_template: "{{ value_json['_global']['mode'] }}" 
+    json_attributes_path: "$.['_global']"
+    json_attributes:
+      - brightness
 ```
 
-### 3. Create an Automation
-You can do this in the UI, or add this to `automations.yaml`:
+### 3. Create a Light Entity
+This creates a proper "Light" in Home Assistant that tracks the text color and controls brightness. Add this to your `light:` section (or `configuration.yaml`):
+
 ```yaml
-- alias: "Sync Rack LED Brightness"
-  trigger:
-    - platform: state
-      entity_id: input_number.rack_led_brightness
-  action:
-    - service: rest_command.pidash_set_brightness
-      data:
-        brightness: "{{ trigger.to_state.state | int }}"
+light:
+  - platform: template
+    lights:
+      rack_leds:
+        friendly_name: "Rack LEDs"
+        # On if brightness > 0
+        value_template: "{{ state_attr('sensor.rack_dashboard_settings', 'brightness') | int > 0 }}"
+        
+        # Read brightness from API
+        level_template: "{{ state_attr('sensor.rack_dashboard_settings', 'brightness') | int }}"
+        
+        # Read color from Bay A (as a proxy for the rack status)
+        color_template: >
+          {{ state_attr('sensor.dashboard_bay_a', 'led_rgb') }}
+
+        # Turn On = Max Brightness
+        turn_on:
+          service: rest_command.pidash_set_brightness
+          data:
+            brightness: 255
+
+        # Turn Off = 0 Brightness
+        turn_off:
+          service: rest_command.pidash_set_brightness
+          data:
+            brightness: 0
+
+        # Set Brightness
+        set_level:
+          service: rest_command.pidash_set_brightness
+          data:
+            brightness: "{{ brightness }}"
 ```
 
 ## Step 4: Restart Home Assistant
