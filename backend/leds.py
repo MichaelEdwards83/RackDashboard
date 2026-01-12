@@ -22,19 +22,6 @@ class LEDManager:
         
         # self.current_brightness is float 0.0-1.0
         self.current_brightness = float(CONFIG.get("led_brightness", 255)) / 255.0
-
-    @property
-    def led_brightness(self):
-        """Return brightness as 0-255 integer for backward compatibility"""
-        return int(self.current_brightness * 255)
-
-    @led_brightness.setter
-    def led_brightness(self, value):
-        """Set brightness from 0-255 integer"""
-        self.current_brightness = max(0, min(255, int(value))) / 255.0
-        if self.pixels:
-            self.pixels.brightness = self.current_brightness
-
         
         self.current_colors = [(0,0,0)] * self.led_count
         self.running = True
@@ -48,6 +35,18 @@ class LEDManager:
         # Start background effect loop (for pulsing/flashing)
         self.update_thread = threading.Thread(target=self._animate_loop, daemon=True)
         self.update_thread.start()
+
+    @property
+    def led_brightness(self):
+        """Return brightness as 0-255 integer for backward compatibility"""
+        return int(self.current_brightness * 255)
+
+    @led_brightness.setter
+    def led_brightness(self, value):
+        """Set brightness from 0-255 integer"""
+        self.current_brightness = max(0, min(255, int(value))) / 255.0
+        if self.pixels:
+            self.pixels.brightness = self.current_brightness
 
     def reload_config(self):
         new_mock = CONFIG.get("mock_mode")
