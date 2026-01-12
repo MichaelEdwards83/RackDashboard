@@ -212,6 +212,8 @@ class SensorManager:
                             })
                              new_order.append(miss_id)
                         else:
+                             # FALLBACK / ERROR
+                             print(f"[DEBUG] Item {item} (Type: {type(item)}) failed isinstance check against {W1SensorType}, {NativeW1Sensor}")
                              readings.append({
                                 "id": f"empty-{i}",
                                 "name": "Empty Slot",
