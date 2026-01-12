@@ -5,8 +5,9 @@ Wants=network-online.target
 
 [Service]
 # Replace 'pidash' with your username if different
-User=pidash
-Group=pidash
+# Replace 'pidash' with your username if different
+User=root
+Group=root
 
 # Adjust path if your repo is elsewhere
 WorkingDirectory=/home/pidash/Documents/pidash/backend
