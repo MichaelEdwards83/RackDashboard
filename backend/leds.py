@@ -7,16 +7,19 @@ try:
     import board
     import neopixel
     HAS_LEDS = True
-except (ImportError, NotImplementedError):
+except Exception as e:
     HAS_LEDS = False
-    print("NeoPixel/Blinka libraries not found. Using Mock LEDs.")
+    print(f"NeoPixel/Blinka libraries not found: {e}. Using Mock LEDs.")
 
 class LEDManager:
     def __init__(self):
         self.mock_mode = CONFIG.get("mock_mode")
         self.pixels = None
         self.led_count = 8 # User specified 8 LEDs
-        self.led_pin = board.D18 # GPIO 18
+        self.led_pin = None
+        if HAS_LEDS:
+            self.led_pin = board.D18 # GPIO 18
+        
         # self.led_brightness is handled by NeoPixel object directly, but we store it for config
         self.current_brightness = float(CONFIG.get("led_brightness", 255)) / 255.0
         
