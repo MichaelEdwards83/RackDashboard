@@ -81,25 +81,29 @@ class SensorManager:
         self.mock_mode = new_mock
 
     def _init_real_sensors(self):
+        print(f"[Sensors] Initializing Real Sensors...")
         try:
             found_sensors = []
             try:
                 found_sensors = W1ThermSensor.get_available_sensors()
             except Exception as e:
-                print(f"Library scan failed: {e}. Trying manual fallback.")
+                print(f"[Sensors] Library scan failed: {e}. Trying manual fallback.")
             
             if not found_sensors:
                 manual_paths = glob.glob("/sys/bus/w1/devices/28-*")
                 if manual_paths:
-                    print(f"Manual scan found {len(manual_paths)} sensors: {manual_paths}")
+                    print(f"[Sensors] Manual scan found {len(manual_paths)} sensors: {manual_paths}")
                     for path in manual_paths:
                         try:
                             sensor_id = os.path.basename(path)
                             found_sensors.append(NativeW1Sensor(sensor_id))
                         except Exception as e2:
-                            print(f"Failed to load manual sensor {path}: {e2}")
+                            print(f"[Sensors] Failed to load manual sensor {path}: {e2}")
+                else:
+                    print(f"[Sensors] Manual scan found NO sensors in /sys/bus/w1/devices/28-*")
 
             self.sensors = found_sensors[:5]
+            print(f"[Sensors] Init complete. Found: {len(self.sensors)}")
             if len(self.sensors) < 5:
                 print(f"Warning: Only found {len(self.sensors)} sensors.")
         except Exception as e:
@@ -107,6 +111,7 @@ class SensorManager:
             self.mock_mode = True
 
     def _log_error(self, msg):
+        print(f"[Sensors ERROR] {msg}")
         try:
             with open("backend_debug.log", "a") as f:
                 f.write(f"{time.ctime()}: {msg}\n")
@@ -118,6 +123,7 @@ class SensorManager:
             return list(self._cached_readings)
 
     def _poll_loop(self):
+        print("[Sensors] Poll Thread Started")
         while self.running:
             readings = []
             t_start = time.time()
