@@ -28,10 +28,7 @@ body {
   cursor: none; /* Hide cursor for kiosk feel, unless moved */
 }
 
-/* Re-enable cursor when user interacts (optional, good for setup) */
-body:hover {
-  cursor: default;
-}
+
 
 @layer utilities {
   .glass-panel {
