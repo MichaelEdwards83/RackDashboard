@@ -66,7 +66,7 @@ rest:
           - status
 
       - name: "Dashboard Exhaust"
-        unique_id: "rack_dashboard_sensor_exhaust"
+        unique_id: "rack_dashboard_sensor_exhaust_v2"
         value_template: "{{ value_json['0000003634bb']['temp'] }}"
         unit_of_measurement: "°F"
         device_class: temperature
