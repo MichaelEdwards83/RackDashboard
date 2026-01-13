@@ -109,7 +109,7 @@ def get_ha_data():
         if i < len(leds_mgr.current_colors):
             color = leds_mgr.current_colors[i]
 
-        data[r["id"]] = {
+        data[f"id_{r['id']}"] = {
             "temp": r["temp"],
             "name": r["name"],
             "status": r["status"],

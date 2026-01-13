@@ -27,50 +27,50 @@ rest:
       # The Temperature Probes
       - name: "Dashboard Bay A"
         unique_id: "rack_dashboard_sensor_bay_a"
-        value_template: "{{ value_json['00000035bdc5']['temp'] }}"
+        value_template: "{{ value_json['id_00000035bdc5']['temp'] }}"
         unit_of_measurement: "°F"
         device_class: temperature
-        json_attributes_path: "$.['00000035bdc5']"
+        json_attributes_path: "$.['id_00000035bdc5']"
         json_attributes:
           - led_rgb
           - status
 
       - name: "Dashboard Bay B"
         unique_id: "rack_dashboard_sensor_bay_b"
-        value_template: "{{ value_json['000000390962']['temp'] }}"
+        value_template: "{{ value_json['id_000000390962']['temp'] }}"
         unit_of_measurement: "°F"
         device_class: temperature
-        json_attributes_path: "$.['000000390962']"
+        json_attributes_path: "$.['id_000000390962']"
         json_attributes:
           - led_rgb
           - status
 
       - name: "Dashboard Bay C"
         unique_id: "rack_dashboard_sensor_bay_c"
-        value_template: "{{ value_json['00000037ac11']['temp'] }}"
+        value_template: "{{ value_json['id_00000037ac11']['temp'] }}"
         unit_of_measurement: "°F"
         device_class: temperature
-        json_attributes_path: "$.['00000037ac11']"
+        json_attributes_path: "$.['id_00000037ac11']"
         json_attributes:
           - led_rgb
           - status
 
       - name: "Dashboard Ambient"
         unique_id: "rack_dashboard_sensor_ambient"
-        value_template: "{{ value_json['00000036013b']['temp'] }}"
+        value_template: "{{ value_json['id_00000036013b']['temp'] }}"
         unit_of_measurement: "°F"
         device_class: temperature
-        json_attributes_path: "$.['00000036013b']"
+        json_attributes_path: "$.['id_00000036013b']"
         json_attributes:
           - led_rgb
           - status
 
       - name: "Dashboard Exhaust"
         unique_id: "rack_dashboard_sensor_exhaust_v2"
-        value_template: "{{ value_json['0000003634bb']['temp'] }}"
+        value_template: "{{ value_json['id_0000003634bb']['temp'] }}"
         unit_of_measurement: "°F"
         device_class: temperature
-        json_attributes_path: "$.['0000003634bb']"
+        json_attributes_path: "$.['id_0000003634bb']"
         json_attributes:
           - led_rgb
           - status
