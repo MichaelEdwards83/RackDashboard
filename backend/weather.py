@@ -26,6 +26,9 @@ class WeatherManager:
         self._backoff_until = 0
         self._cached_weather = None
         self._last_weather_time = 0
+        self._is_using_auto_fallback = False
+        self._last_location_check = 0
+        self._location_check_interval = 3600 # Re-check every hour if auto
 
     def reload_config(self):
         """Reset cached location to force re-evaluation from CONFIG (auto or manual)"""
@@ -52,20 +55,34 @@ class WeatherManager:
 
         # Determine location
         loc = CONFIG.get("location")
+        auto_mode = loc.get("auto", True)
         config_lat = loc["latitude"]
         config_lon = loc["longitude"]
         config_name = loc["name"]
 
-        # Ensure we have a location
-        if not self.lat or not self.lon:
-            self._update_location_auto()
+        # 1. If in Auto Mode, try to pick it up if we don't have it or if it's been an hour
+        if auto_mode:
+            # If we don't have a location, OR if we previously fell back, OR if it's been an hour, try re-detecting
+            should_check = (not self.lat or self._is_using_auto_fallback or 
+                           (time.time() - self._last_location_check > self._location_check_interval))
             
-        # FALLBACK: If auto-detection failed (still None), use Config
+            if should_check:
+                self._update_location_auto()
+
+        # 2. If NOT in Auto Mode, always use Config values
+        else:
+            self.lat = config_lat
+            self.lon = config_lon
+            self.location_name = config_name
+            self._is_using_auto_fallback = False
+
+        # 3. FINAL FALLBACK: If Auto failed (still None), use Config but mark as fallback so we retry
         if not self.lat or not self.lon:
             log_debug(f"Auto-location failed. Falling back to config: {config_name}")
             self.lat = config_lat
             self.lon = config_lon
             self.location_name = config_name
+            self._is_using_auto_fallback = True
 
         # Fetch Weather
         try:
@@ -119,6 +136,8 @@ class WeatherManager:
                 self.lon = data.get("lon")
                 self.location_name = data.get("city", "Unknown")
                 timezone = data.get("timezone")
+                self._is_using_auto_fallback = False
+                self._last_location_check = time.time()
                 log_debug(f"Location Found (Auto): {self.location_name} ({self.lat}, {self.lon}), Timezone: {timezone}")
                 
                 if timezone:
