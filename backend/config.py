@@ -20,7 +20,8 @@ DEFAULT_CONFIG = {
         "auto": True,
         "latitude": 0.0,
         "longitude": 0.0,
-        "name": "Unknown"
+        "name": "Unknown",
+        "timezone": "UTC"
     },
     "mock_mode": False,
     "sensor_order": []

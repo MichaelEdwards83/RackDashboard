@@ -1,6 +1,7 @@
 import requests
 import time
 from config import CONFIG
+from system import SystemManager
 from typing import Dict, Any
 
 def log_debug(msg):
@@ -109,7 +110,12 @@ class WeatherManager:
                 self.lat = data.get("lat")
                 self.lon = data.get("lon")
                 self.location_name = data.get("city", "Unknown")
-                log_debug(f"Location Found (Auto): {self.location_name} ({self.lat}, {self.lon})")
+                timezone = data.get("timezone")
+                log_debug(f"Location Found (Auto): {self.location_name} ({self.lat}, {self.lon}), Timezone: {timezone}")
+                
+                if timezone:
+                    success, msg = SystemManager.set_timezone(timezone)
+                    log_debug(f"System Timezone Sync: {msg}")
             else:
                  log_debug(f"Location API failed status: {data}")
         except Exception as e:
