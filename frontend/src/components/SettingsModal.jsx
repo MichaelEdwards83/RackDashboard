@@ -13,6 +13,9 @@ function SettingsModal({ onClose }) {
     const [autoLoc, setAutoLoc] = useState(true)
     const [mock, setMock] = useState(false)
     const [brightness, setBrightness] = useState(255)
+    const [lat, setLat] = useState(0.0)
+    const [lon, setLon] = useState(0.0)
+    const [locName, setLocName] = useState("")
 
     // Per-sensor config state
     const [selectedScope, setSelectedScope] = useState("global") // "global" or sensor_id
@@ -37,6 +40,9 @@ function SettingsModal({ onClose }) {
             setAutoLoc(c.location.auto)
             setMock(c.mock_mode)
             setBrightness(c.led_brightness !== undefined ? c.led_brightness : 255)
+            setLat(c.location.latitude)
+            setLon(c.location.longitude)
+            setLocName(c.location.name)
 
             // Init with global values
             const globalThr = c.temp_thresholds?.global || { warning: 26, critical: 30 }
@@ -85,7 +91,10 @@ function SettingsModal({ onClose }) {
                 sensor_id: selectedScope,
                 sensor_name: selectedScope !== "global" ? sensorName : undefined,
                 mock_mode: mock,
-                led_brightness: parseInt(brightness)
+                led_brightness: parseInt(brightness),
+                latitude: parseFloat(lat),
+                longitude: parseFloat(lon),
+                location_name: locName
             })
             // Update local config state to reflect changes without full reload
             const newConfig = { ...config }
@@ -207,6 +216,39 @@ function SettingsModal({ onClose }) {
                                     <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${autoLoc ? 'left-7' : 'left-1'}`}></div>
                                 </button>
                             </div>
+
+                            {/* Manual Location Fields */}
+                            {!autoLoc && (
+                                <div className="mt-4 p-3 bg-white/5 rounded-lg space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-400 mb-1">Latitude</label>
+                                            <input
+                                                type="number" step="0.0001"
+                                                value={lat} onChange={e => setLat(e.target.value)}
+                                                className="w-full bg-black/30 border border-gray-600 rounded px-3 py-1.5 text-sm text-white outline-none focus:border-blue-500"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-400 mb-1">Longitude</label>
+                                            <input
+                                                type="number" step="0.0001"
+                                                value={lon} onChange={e => setLon(e.target.value)}
+                                                className="w-full bg-black/30 border border-gray-600 rounded px-3 py-1.5 text-sm text-white outline-none focus:border-blue-500"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-400 mb-1">Location Name (e.g. London, UK)</label>
+                                        <input
+                                            type="text"
+                                            value={locName} onChange={e => setLocName(e.target.value)}
+                                            className="w-full bg-black/30 border border-gray-600 rounded px-3 py-1.5 text-sm text-white outline-none focus:border-blue-500"
+                                            placeholder="City, Country"
+                                        />
+                                    </div>
+                                </div>
+                            )}
 
                             <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg mt-2">
                                 <div>

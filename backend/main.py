@@ -37,6 +37,9 @@ class SettingsUpdate(BaseModel):
     sensor_name: str = None # Optional name update for sensor_id
     mock_mode: bool = None
     led_brightness: int = None
+    latitude: float = None
+    longitude: float = None
+    location_name: str = None
 
 @app.on_event("startup")
 async def startup_event():
@@ -179,6 +182,14 @@ def update_settings(settings: SettingsUpdate):
         if settings.led_brightness is not None:
             current["led_brightness"] = settings.led_brightness
             
+        # Update Manual Location Fields
+        if settings.latitude is not None:
+            current["location"]["latitude"] = settings.latitude
+        if settings.longitude is not None:
+            current["location"]["longitude"] = settings.longitude
+        if settings.location_name is not None:
+            current["location"]["name"] = settings.location_name
+            
         CONFIG.save()
         
     except Exception as e:
@@ -191,6 +202,7 @@ def update_settings(settings: SettingsUpdate):
     # Reload Managers
     sensors_mgr.reload_config()
     leds_mgr.reload_config()
+    weather_mgr.reload_config()
     
     # Update NTP
     msg = "Settings updated"

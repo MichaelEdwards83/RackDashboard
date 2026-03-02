@@ -27,6 +27,14 @@ class WeatherManager:
         self._cached_weather = None
         self._last_weather_time = 0
 
+    def reload_config(self):
+        """Reset cached location to force re-evaluation from CONFIG (auto or manual)"""
+        self.lat = None
+        self.lon = None
+        self.location_name = "Unknown"
+        self.last_update = 0 # Force weather fetch
+        log_debug("Configuration reloaded, location cache reset.")
+
     def get_weather(self) -> Dict[str, Any]:
         # Return cached if valid
         if time.time() - self.last_update < self.update_interval and self.current_weather:
